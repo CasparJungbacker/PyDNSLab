@@ -21,6 +21,12 @@ def test_num_gridpoints(fields: Fields) -> None:
     assert fields.N2 == 32
     assert fields.N3 == 34
 
+
+def test_steps(fields: Fields) -> None:
+    assert fields.dx == pytest.approx(0.196349540849362)
+    assert fields.dy == pytest.approx(0.098174770424681)
+    assert fields.dz == pytest.approx(0.062500000000000)
+    
     
 def test_enum_matrix(fields: Fields) -> None:
     pass
