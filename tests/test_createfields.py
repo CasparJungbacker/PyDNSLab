@@ -23,7 +23,8 @@ def load_mat_file(name: str) -> np.ndarray:
     mat_file = loadmat(os.path.join(FIELDS_PATH, name))
     array = mat_file[list(mat_file)[-1]]
     # Matlab arrays are stored in Fortran order, so we need to reorder
-    array = array.flatten(order='F').reshape(np.shape(array))
+    if array.ndim > 1:
+        array = array.flatten(order='F').reshape(np.shape(array))
     return array
 
 
@@ -48,11 +49,10 @@ def test_enum_matrix(fields: Fields) -> None:
     A = load_mat_file('A.mat')
     A -= 1 # Matlab is 1-indexed, Python is 0-indexed
     np.testing.assert_array_equal(fields.A, A)
-    
 
 
 def test_xyz(fields: Fields) -> None:
-    pass
+    
 
 
 def test_cell_size(fields: Fields) -> None:
