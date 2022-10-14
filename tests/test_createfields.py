@@ -23,8 +23,8 @@ def load_mat_file(name: str) -> np.ndarray:
     mat_file = loadmat(os.path.join(FIELDS_PATH, name))
     array = mat_file[list(mat_file)[-1]]
     # Matlab arrays are stored in Fortran order, so we need to reorder
-    if array.ndim > 1:
-        array = array.flatten(order='F').reshape(np.shape(array))
+    array = array.flatten(order='F').reshape(np.shape(array))
+    array = array.squeeze()
     return array
 
 
@@ -52,7 +52,12 @@ def test_enum_matrix(fields: Fields) -> None:
 
 
 def test_xyz(fields: Fields) -> None:
-    
+    x = load_mat_file('x.mat')
+    y = load_mat_file('y.mat')
+    z = load_mat_file('z.mat')
+    np.testing.assert_array_almost_equal(fields.x, x)
+    np.testing.assert_array_almost_equal(fields.y, y)
+    np.testing.assert_array_almost_equal(fields.z, z)
 
 
 def test_cell_size(fields: Fields) -> None:
