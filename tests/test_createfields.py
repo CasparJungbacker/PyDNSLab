@@ -77,8 +77,20 @@ def test_XYZ(fields: Fields) -> None:
     np.testing.assert_almost_equal(fields.Y, Y)
     np.testing.assert_almost_equal(fields.Z[:,:,1], Z[:,:,1])
 
+def test_inx(fields: Fields) -> None:
+    inx = load_mat_file('inx.mat')
+    inx = inx - 1
+    np.testing.assert_almost_equal(fields.inx, inx)
 
-def test_indices(fields: Fields) -> None:
+def test_iny(fields: Fields) -> None:
+    iny = load_mat_file('iny.mat')
+    iny = iny - 1
+    np.testing.assert_almost_equal(fields.iny, iny)
+
+def test_inz(fields: Fields) -> None:
+    inz = load_mat_file('inz.mat')
+    inz = inz - 1
+    np.testing.assert_almost_equal(fields.inz, inz)
 
 
 def test_UVW(fields: Fields) -> None:
