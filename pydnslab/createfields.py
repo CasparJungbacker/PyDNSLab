@@ -34,9 +34,9 @@ class Fields:
         self._init_wall_normal_points()
 
         X, Y, Z = np.meshgrid(self.x, self.y, self.z)
-        self.X: np.ndarray = X[:,:,1:self.N3]
-        self.Y: np.ndarray = Y[:,:,1:self.N3]
-        self.Z: np.ndarray = Z[:,:,1:self.N3]
+        self.X: np.ndarray = X[:,:,1:self.N3-1]
+        self.Y: np.ndarray = Y[:,:,1:self.N3-1]
+        self.Z: np.ndarray = Z[:,:,1:self.N3-1]
 
         self.inx: np.ndarray = np.arange(self.N2)
         self.iny: np.ndarray = np.arange(self.N1)

@@ -70,11 +70,15 @@ def test_cell_size(fields: Fields) -> None:
     np.testing.assert_array_almost_equal(fields.FZ[:,:,1], FZ[:,:,1])
 
 def test_XYZ(fields: Fields) -> None:
-    pass
+    X = load_mat_file('X_.mat')
+    Y = load_mat_file('Y_.mat')
+    Z = load_mat_file('Z_.mat')
+    np.testing.assert_almost_equal(fields.X, X)
+    np.testing.assert_almost_equal(fields.Y, Y)
+    np.testing.assert_almost_equal(fields.Z[:,:,1], Z[:,:,1])
 
 
 def test_indices(fields: Fields) -> None:
-    pass
 
 
 def test_UVW(fields: Fields) -> None:
