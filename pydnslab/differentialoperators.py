@@ -62,15 +62,15 @@ class Operators:
                     FZA = FZ[i,j,air[k]]
                     FZG = FZ[i,j,ground[k]]
 
-                if index == 1:
-                    M[A0[i,j,k], A0[i,j,k]] = (1/FY0)*(FYN/(FY0+FYN)-\
-                        FYS/(FYS+FY0))
-                if index == 2:
-                    M[A0[i,j,k], A0[i,j,k]] = (1/FX0)*(FXE/(FX0+FXE)-\
-                        FXW/(FXW+FX0))
-                if index == 3:
-                    M[A0[i,j,k], A0[i,j,k]] = (1/FZ0)*(FZA/(FZ0+FZA)-\
-                        FZG/(FZG+FZ0))
+                    if index == 1:
+                        M[A0[i,j,k], A0[i,j,k]] = (1/FY0)*(FYN/(FY0+FYN)-\
+                            FYS/(FYS+FY0))
+                    if index == 2:
+                        M[A0[i,j,k], A0[i,j,k]] = (1/FX0)*(FXE/(FX0+FXE)-\
+                            FXW/(FXW+FX0))
+                    if index == 3:
+                        M[A0[i,j,k], A0[i,j,k]] = (1/FZ0)*(FZA/(FZ0+FZA)-\
+                            FZG/(FZG+FZ0))
                     
         return M
 
