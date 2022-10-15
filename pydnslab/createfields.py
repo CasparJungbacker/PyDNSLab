@@ -94,16 +94,13 @@ class Fields:
         self.z[1:-1] = fz[0:-1] + 0.5*(fz[1:] - fz[0:-1])
         self.z[-1] = fz[-1] + 0.5*(fz[-1] - fz[-2])
         
-        self.z /= fz[-1]*self.height
-        fz /= fz[-1]*self.height
-
-        self.FZ = np.zeros((self.N1, self.N2, self.N3))
+        self.z = (self.z/fz[-1])*self.height
+        fz = (fz/fz[-1])*self.height
         
-        # TODO: figure out how to get rid of this loop
+        # TODO: figure out a better way to do this
         for i in range(1, self.N3 - 1):
             self.FZ[:,:,i] = fz[i] - fz[i-1]
 
-            
         self.FZ[:,:,0] = self.FZ[:,:,1]
         self.FZ[:,:,-1] = self.FZ[:,:,-2]
 

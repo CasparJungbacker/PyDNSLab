@@ -23,7 +23,8 @@ def load_mat_file(name: str) -> np.ndarray:
     mat_file = loadmat(os.path.join(FIELDS_PATH, name))
     array = mat_file[list(mat_file)[-1]]
     # Matlab arrays are stored in Fortran order, so we need to reorder
-    array = array.flatten(order='F').reshape(np.shape(array))
+    #array = array.ravel(order='F').reshape(np.shape(array))
+    array = array.squeeze()
     return array
 
 
@@ -47,6 +48,7 @@ def test_steps(fields: Fields) -> None:
 def test_enum_matrix(fields: Fields) -> None:
     A = load_mat_file('A.mat')
     A -= 1 # Matlab is 1-indexed, Python is 0-indexed
+    A = A.flatten(order='F').reshape(np.shape(A))
     np.testing.assert_array_equal(fields.A, A)
 
 
@@ -62,10 +64,10 @@ def test_xyz(fields: Fields) -> None:
 def test_cell_size(fields: Fields) -> None:
     FX = load_mat_file('FX.mat')
     FY = load_mat_file('FY.mat')
-    FZ = load_mat_file('FZ.mat')
+    FZ = load_mat_file('FZ_.mat')
     np.testing.assert_array_almost_equal(fields.FX, FX)
     np.testing.assert_array_almost_equal(fields.FY, FY)
-    np.testing.assert_array_almost_equal(fields.FZ, FZ)
+    np.testing.assert_array_almost_equal(fields.FZ[:,:,1], FZ[:,:,1])
 
 def test_XYZ(fields: Fields) -> None:
     pass
