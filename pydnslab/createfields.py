@@ -25,10 +25,10 @@ class Fields:
 
         self.A: np.ndarray = self.init_enum_matrix(self.N1, self.N2, self.N3)
 
-        self.FX: np.ndarray = np.zeros(
-            (self.N1, self.N2, self.N3)).fill(self.dx)
-        self.FY: np.ndarray = np.zeros(
-            (self.N1, self.N2, self.N3)).fill(self.dy)
+        self.FX: np.ndarray = np.empty((self.N1, self.N2, self.N3))
+        self.FX.fill(self.dx)
+        self.FY: np.ndarray = np.empty((self.N1, self.N2, self.N3))
+        self.FY.fill(self.dy)
         self.FZ: np.ndarray = np.zeros((self.N1, self.N2, self.N3))
         
         self._init_wall_normal_points()

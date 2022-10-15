@@ -24,7 +24,6 @@ def load_mat_file(name: str) -> np.ndarray:
     array = mat_file[list(mat_file)[-1]]
     # Matlab arrays are stored in Fortran order, so we need to reorder
     array = array.flatten(order='F').reshape(np.shape(array))
-    array = array.squeeze()
     return array
 
 
@@ -61,8 +60,12 @@ def test_xyz(fields: Fields) -> None:
 
 
 def test_cell_size(fields: Fields) -> None:
-    pass
-
+    FX = load_mat_file('FX.mat')
+    FY = load_mat_file('FY.mat')
+    FZ = load_mat_file('FZ.mat')
+    np.testing.assert_array_almost_equal(fields.FX, FX)
+    np.testing.assert_array_almost_equal(fields.FY, FY)
+    np.testing.assert_array_almost_equal(fields.FZ, FZ)
 
 def test_XYZ(fields: Fields) -> None:
     pass
