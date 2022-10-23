@@ -295,7 +295,7 @@ class Operators:
         air: np.ndarray,
         ground: np.ndarray,
         index: int,
-    ) -> sps.dia_matrix:
+    ) -> sps.dok_matrix:
         """First order derivatives"""
         m = np.zeros(N1 * N2 * (N3 - 2))
         M = sps.dia_matrix(
@@ -395,7 +395,7 @@ class Operators:
         air: np.ndarray,
         ground: np.ndarray,
         index: int,
-    ) -> sps.dia_matrix:
+    ) -> sps.dok_matrix:
         """First order pressure derivates"""
         m = np.zeros(N1 * N2 * (N3 - 2))
         M = sps.dia_matrix(
@@ -496,7 +496,7 @@ class Operators:
         air: np.ndarray,
         ground: np.ndarray,
         index: int,
-    ) -> sps.dia_matrix:
+    ) -> sps.dok_matrix:
         """Second order derivatives"""
 
         m = np.zeros(N1 * N2 * (N3 - 2))
@@ -594,7 +594,7 @@ class Operators:
         south: np.ndarray,
         air: np.ndarray,
         ground: np.ndarray,
-    ) -> sps.dia_matrix:
+    ) -> sps.dok_matrix:
         """Poisson matrix"""
 
         m = np.zeros(N1 * N2 * (N3 - 2))
