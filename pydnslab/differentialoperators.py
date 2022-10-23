@@ -296,27 +296,25 @@ class Operators:
     ) -> sps.dia_matrix:
         """First order derivatives"""
         m = np.zeros(N1 * N2 * (N3 - 2))
-        M = sps.spdiags(
-            [m, m, m, m, m, m, m],
-            [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)],
-            N1 * N2 * (N3 - 2),
-            N1 * N2 * (N3 - 2),
-        ).toarray()
+        M = sps.dia_matrix(
+            ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
+            (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
+        ).tocsr()
 
-        for i in iny:
+        for i in inz - 1:
             for j in inx:
-                for k in inz - 1:
-                    FY0 = FY[i, j, k + 1]
-                    FYN = FY[north[i], j, k + 1]
-                    FYS = FY[south[i], j, k + 1]
+                for k in iny:
+                    FY0 = FY[i + 1, j, k]
+                    FYN = FY[i + 1, j, north[k]]
+                    FYS = FY[i + 1, j, south[k]]
 
-                    FX0 = FX[i, j, k + 1]
-                    FXE = FX[i, east[j], k + 1]
-                    FXW = FX[i, west[j], k + 1]
+                    FX0 = FX[i + 1, j, k]
+                    FXE = FX[i + 1, east[j], k]
+                    FXW = FX[i + 1, west[j], k]
 
-                    FZ0 = FZ[i, j, k + 1]
-                    FZA = FZ[i, j, air[k]]
-                    FZG = FZ[i, j, ground[k]]
+                    FZ0 = FZ[i + 1, j, k]
+                    FZA = FZ[air[i], j, k]
+                    FZG = FZ[ground[k], j, k]
 
                     if index == 1:
                         M[A0[i, j, k], A0[i, j, k]] = (1 / FY0) * (
@@ -398,27 +396,25 @@ class Operators:
     ) -> sps.dia_matrix:
         """First order pressure derivates"""
         m = np.zeros(N1 * N2 * (N3 - 2))
-        M = sps.spdiags(
-            [m, m, m, m, m, m, m],
-            [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)],
-            N1 * N2 * (N3 - 2),
-            N1 * N2 * (N3 - 2),
-        ).toarray()
+        M = sps.dia_matrix(
+            ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
+            (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
+        )
 
         for i in iny:
             for j in inx:
                 for k in inz - 1:
-                    FY0 = FY[i, j, k + 1]
-                    FYN = FY[north[i], j, k + 1]
-                    FYS = FY[south[i], j, k + 1]
+                    FY0 = FY[i + 1, j, k]
+                    FYN = FY[i + 1, j, north[k]]
+                    FYS = FY[i + 1, j, south[k]]
 
-                    FX0 = FX[i, j, k + 1]
-                    FXE = FX[i, east[j], k + 1]
-                    FXW = FX[i, west[j], k + 1]
+                    FX0 = FX[i + 1, j, k]
+                    FXE = FX[i + 1, east[j], k]
+                    FXW = FX[i + 1, west[j], k]
 
-                    FZ0 = FZ[i, j, k + 1]
-                    FZA = FZ[i, j, air[k]]
-                    FZG = FZ[i, j, ground[k]]
+                    FZ0 = FZ[i + 1, j, k]
+                    FZA = FZ[air[i], j, k]
+                    FZG = FZ[ground[k], j, k]
 
                     if index == 1:
                         M[A0[i, j, k], A0[i, j, k]] = (1 / FY0) * (
@@ -503,11 +499,9 @@ class Operators:
 
         m = np.zeros(N1 * N2 * (N3 - 2))
         M = sps.dia_matrix(
-            [m, m, m, m, m, m, m],
-            [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)],
-            N1 * N2 * (N3 - 2),
-            N1 * N2 * (N3 - 2),
-        ).toarray()
+            ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
+            (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
+        )
 
         for i in iny:
             for j in inx:
@@ -515,63 +509,63 @@ class Operators:
 
                     if index == 1:
                         M[A0[i, j, k], A0[i, j, k]] = -2 / (
-                            FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[north[i], j, k + 1])
+                            FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
                         ) - 2 / (
-                            FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[south[i], j, k + 1])
+                            FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
                         )
 
                     elif index == 2:
                         M[A0[i, j, k], A0[i, j, k]] = -2 / (
-                            FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, east[j], k + 1])
+                            FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
                         ) - 2 / (
-                            FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, west[j], k + 1])
+                            FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
                         )
 
                     elif index == 3:
                         M[A0[i, j, k], A0[i, j, k]] = -2 / (
-                            FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, air[k]])
+                            FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
                         ) - 2 / (
-                            FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, ground[k]])
+                            FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
                         )
 
                     if index == 1:
                         M[A0[i, j, k], AN[A0[i, j, k]]] = 2 / (
-                            FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[north[i], j, k + 1])
+                            FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
                         )
                         M[A0[i, j, k], AS[A0[i, j, k]]] = 2 / (
-                            FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[south[i], j, k + 1])
+                            FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
                         )
 
                     elif index == 2:
                         M[A0[i, j, k], AE[A0[i, j, k]]] = 2 / (
-                            FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, east[j], k + 1])
+                            FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
                         )
                         M[A0[i, j, k], AS[A0[i, j, k]]] = 2 / (
-                            FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, west[j], k + 1])
+                            FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
                         )
                     elif index == 3:
                         if AG[A0[i, j, k]] >= 0:
                             M[A0[i, j, k], AG[A0[i, j, k]]] = 2 / (
-                                FZ[i, j, k + 1]
-                                * (FZ[i, j, k + 1] + FZ[i, j, ground[k]])
+                                FZ[i + 1, j, k]
+                                * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
                             )
                         else:
                             M[A0[i, j, k], AG[A0[i, j, k]]] = -2 / (
-                                FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, air[k]])
+                                FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
                             ) - 4 / (
-                                FZ[i, j, k + 1]
-                                * (FZ[i, j, k + 1] + FZ[i, j, ground[k]])
+                                FZ[i + 1, j, k]
+                                * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
                             )
                         if AA[A0[i, j, k]] <= N1 * N2 * (N3 - 2) - 1:
                             M[A0[i, j, k], AA[A0[i, j, k]]] = 2 / (
-                                FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, air[k]])
+                                FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
                             )
                         else:
                             M[A0[i, j, k], A0[i, j, k]] = -4 / (
-                                FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, air[k]])
+                                FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
                             ) - 2 / (
-                                FZ[i, j, k + 1]
-                                * (FZ[i, j, k + 1] + FZ[i, j, ground[k]])
+                                FZ[i + 1, j, k]
+                                * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
                             )
 
     @staticmethod
@@ -603,115 +597,113 @@ class Operators:
 
         m = np.zeros(N1 * N2 * (N3 - 2))
         M = sps.dia_matrix(
-            [m, m, m, m, m, m, m],
-            [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)],
-            N1 * N2 * (N3 - 2),
-            N1 * N2 * (N3 - 2),
-        ).toarray()
+            ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
+            (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
+        )
 
         for i in iny:
             for j in inx:
                 for k in inz - 1:
                     M[A0[i, j, k], A0[i, j, k]] = (
                         -2
-                        / (FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[north[i], j, k + 1]))
+                        / (FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]]))
                         - 2
-                        / (FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[south[i], j, k + 1]))
+                        / (FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]]))
                         - 2
-                        / (FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, east[j], k + 1]))
+                        / (FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k]))
                         - 2
-                        / (FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, west[j], k + 1]))
-                        - 2 / (FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, air[k]]))
+                        / (FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k]))
+                        - 2 / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k]))
                         - 2
-                        / (FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, ground[k]]))
+                        / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k]))
                     )
 
                     M[A0[i, j, k], AN[A0[i, j, k]]] = 2 / (
-                        FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[north[i], j, k + 1])
+                        FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
                     )
                     M[A0[i, j, k], AS[A0[i, j, k]]] = 2 / (
-                        FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[south[i], j, k + 1])
+                        FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
                     )
                     M[A0[i, j, k], AE[A0[i, j, k]]] = 2 / (
-                        FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, east[j], k + 1])
+                        FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
                     )
                     M[A0[i, j, k], AW[A0[i, j, k]]] = 2 / (
-                        FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, west[j], k + 1])
+                        FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
                     )
 
                     if AA[A0[i, j, k]] <= N1 * N2 * (N3 - 2) - 1:
                         M[A0[i, j, k], AA[A0[i, j, k]]] = 2 / (
-                            FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, air[k]])
+                            FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
                         )
                     else:
                         M[A0[i, j, k], A0[i, j, k]] = (
                             -2
                             / (
-                                FY[i, j, k + 1]
-                                * (FY[i, j, k + 1] + FY[north[i], j, k + 1])
+                                FY[i + 1, j, k]
+                                * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
                             )
                             - 2
                             / (
-                                FY[i, j, k + 1]
-                                * (FY[i, j, k + 1] + FY[south[i], j, k + 1])
+                                FY[i + 1, j, k]
+                                * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
                             )
                             - 2
                             / (
-                                FX[i, j, k + 1]
-                                * (FX[i, j, k + 1] + FX[i, east[j], k + 1])
+                                FX[i + 1, j, k]
+                                * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
                             )
                             - 2
                             / (
-                                FX[i, j, k + 1]
-                                * (FX[i, j, k + 1] + FX[i, west[j], k + 1])
+                                FX[i + 1, j, k]
+                                * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
                             )
                             - 2
                             / (
-                                FZ[i, j, k + 1]
-                                * (FZ[i, j, k + 1] + FZ[i, j, ground[k]])
+                                FZ[i + 1, j, k]
+                                * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
                             )
                         )
 
                     if AG[A0[i, j, k]] >= 1:
                         M[A0[i, j, k], AG[A0[i, j, k]]] = 2 / (
-                            FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, k, ground[k]])
+                            FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
                         )
                     else:
                         M[A0[i, j, k], A0[i, j, k]] = (
                             -2
                             / (
-                                FY[i, j, k + 1]
-                                * (FY[i, j, k + 1] + FY[north[i], j, k + 1])
+                                FY[i + 1, j, k]
+                                * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
                             )
                             - 2
                             / (
-                                FY[i, j, k + 1]
-                                * (FY[i, j, k + 1] + FY[south[i], j, k + 1])
+                                FY[i + 1, j, k]
+                                * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
                             )
                             - 2
                             / (
-                                FX[i, j, k + 1]
-                                * (FX[i, j, k + 1] + FX[i, east[j], k + 1])
+                                FX[i + 1, j, k]
+                                * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
                             )
                             - 2
                             / (
-                                FX[i, j, k + 1]
-                                * (FX[i, j, k + 1] + FX[i, west[j], k + 1])
+                                FX[i + 1, j, k]
+                                * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
                             )
                             - 2
-                            / (FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, air[k]]))
+                            / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k]))
                         )
         i = round(N1 / 2) - 1
         j = N2 / 2 - 1
         k = 0
 
         M[A0[i, j, k], A0[i, j, k]] = (
-            -2 / (FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[north[i], j, k + 1]))
-            - 2 / (FY[i, j, k + 1] * (FY[i, j, k + 1] + FY[south[i], j, k + 1]))
-            - 2 / (FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, east[j], k + 1]))
-            - 2 / (FX[i, j, k + 1] * (FX[i, j, k + 1] + FX[i, west[j], k + 1]))
-            - 2 / (FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, air[k]]))
-            - 4 / (FZ[i, j, k + 1] * (FZ[i, j, k + 1] + FZ[i, j, ground[k]]))
+            -2 / (FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]]))
+            - 2 / (FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]]))
+            - 2 / (FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k]))
+            - 2 / (FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k]))
+            - 2 / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k]))
+            - 4 / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k]))
         )
 
         return M
