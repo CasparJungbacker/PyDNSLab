@@ -301,7 +301,7 @@ class Operators:
             [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)],
             N1 * N2 * (N3 - 2),
             N1 * N2 * (N3 - 2),
-        )
+        ).toarray()
 
         for i in iny:
             for j in inx:
@@ -403,7 +403,7 @@ class Operators:
             [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)],
             N1 * N2 * (N3 - 2),
             N1 * N2 * (N3 - 2),
-        )
+        ).toarray()
 
         for i in iny:
             for j in inx:
@@ -507,7 +507,7 @@ class Operators:
             [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)],
             N1 * N2 * (N3 - 2),
             N1 * N2 * (N3 - 2),
-        )
+        ).toarray()
 
         for i in iny:
             for j in inx:
@@ -607,7 +607,7 @@ class Operators:
             [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)],
             N1 * N2 * (N3 - 2),
             N1 * N2 * (N3 - 2),
-        )
+        ).toarray()
 
         for i in iny:
             for j in inx:
