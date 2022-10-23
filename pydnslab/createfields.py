@@ -52,18 +52,19 @@ class Fields:
         self.air: np.ndarray = self.inz + 1
         self.ground: np.ndarray = self.inz - 1
 
-        self.U = np.zeros((self.N1, self.N2, self.N3 - 2))
+        self.U = np.zeros((self.N3 - 2, self.N2, self.N1))
         self.V = np.copy(self.U)
         self.W = np.copy(self.U)
 
         self._init_channel_flow(case["runmode"], case["u_nom"], case["u_f"])
 
-        self.A0 = self.A[list(self.inz), :, :] - self.N1 * self.N2
-        # self.AS = self.A[self.south, self.inx, self.inz] - self.N1 * self.N2
-        # self.AE = self.A[self.iny, self.east, self.inz] - self.N1 * self.N2
-        # self.AW = self.A[self.iny, self.west, self.inz] - self.N1 * self.N2
-        # self.AA = self.A[self.iny, self.inx, self.air] - self.N1 * self.N2
-        # self.AG = self.A[self.iny, self.inx, self.ground] - self.N1 * self.N2
+        self.A0 = self.A[self.inz, :, :] - self.N1 * self.N2
+        self.AN = self.A0[:, :, self.north].flatten()
+        self.AS = self.A0[:, :, self.south].flatten()
+        self.AE = self.A0[:, self.east, :].flatten()
+        self.AW = self.A0[:, self.west, :].flatten()
+        self.AA = self.A[self.air, :, :].flatten() - self.N1 * self.N2
+        self.AG = self.A[self.ground, :, :].flatten() - self.N1 * self.N2
 
         self.u = np.reshape(self.U, (self.N1 * self.N2 * (self.N3 - 2), 1))
         self.v = np.reshape(self.V, (self.N1 * self.N2 * (self.N3 - 2), 1))

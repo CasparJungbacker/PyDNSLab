@@ -77,7 +77,7 @@ def test_XYZ(fields: Fields) -> None:
     Z = load_mat_file("Z_.mat")
     np.testing.assert_almost_equal(fields.X, X)
     np.testing.assert_almost_equal(fields.Y, Y)
-    np.testing.assert_almost_equal(fields.Z[:, :, 1], Z[:, :, 1])
+    np.testing.assert_almost_equal(fields.Z, Z)
 
 
 def test_inx(fields: Fields) -> None:
@@ -140,15 +140,22 @@ def test_UVW(fields: Fields) -> None:
 
 def test_A0(fields: Fields) -> None:
     A0 = load_mat_file("A0.mat")
-    A0 = A0 - 1
-    np.testing.assert_array_equal(fields.A0, A0.T)
 
 
-def test_AN(fields: Fields) -> None:
-    AN = load_mat_file("A0.mat")
-    AN = AN - 1
-    AN = AN.flatten(order="F")
-    np.testing.assert_array_equal(fields.AN, AN)
+@pytest.mark.parametrize(
+    "attr, mat",
+    [
+        ("AN", "AN.mat"),
+        ("AS", "AS.mat"),
+        ("AE", "AE.mat"),
+        ("AW", "AW.mat"),
+        ("AA", "AA.mat"),
+        ("AG", "AG.mat"),
+    ],
+)
+def test_enum_matrices(fields: Fields, attr: str, mat: str) -> None:
+    mat_field = load_mat_file(mat).flatten(order="F") - 1
+    np.testing.assert_array_equal(getattr(fields, attr), mat_field)
 
 
 def test_uvw(fields: Fields) -> None:
