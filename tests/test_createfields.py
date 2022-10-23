@@ -1,3 +1,4 @@
+from json import load
 import os
 import pytest
 import numpy as np
@@ -98,40 +99,20 @@ def test_inz(fields: Fields) -> None:
     np.testing.assert_almost_equal(fields.inz, inz)
 
 
-def test_north(fields: Fields) -> None:
-    north = load_mat_file("north.mat")
-    north = north - 1
-    np.testing.assert_almost_equal(fields.north, north)
-
-
-def test_south(fields: Fields) -> None:
-    south = load_mat_file("south.mat")
-    south = south - 1
-    np.testing.assert_almost_equal(fields.south, south)
-
-
-def test_east(fields: Fields) -> None:
-    east = load_mat_file("east.mat")
-    east = east - 1
-    np.testing.assert_almost_equal(fields.east, east)
-
-
-def test_west(fields: Fields) -> None:
-    west = load_mat_file("west.mat")
-    west = west - 1
-    np.testing.assert_almost_equal(fields.west, west)
-
-
-def test_air(fields: Fields) -> None:
-    air = load_mat_file("air.mat")
-    air = air - 1
-    np.testing.assert_almost_equal(fields.air, air)
-
-
-def test_ground(fields: Fields) -> None:
-    ground = load_mat_file("ground.mat")
-    ground = ground - 1
-    np.testing.assert_almost_equal(fields.ground, ground)
+@pytest.mark.parametrize(
+    "attr, mat",
+    [
+        ("north", "north.mat"),
+        ("south", "south.mat"),
+        ("east", "east.mat"),
+        ("west", "west.mat"),
+        ("air", "air.mat"),
+        ("ground", "ground.mat"),
+    ],
+)
+def test_directional_indices(fields: Fields, attr: str, mat: str) -> None:
+    arr = load_mat_file(mat) - 1
+    np.testing.assert_array_equal(getattr(fields, attr), arr)
 
 
 def test_UVW(fields: Fields) -> None:
