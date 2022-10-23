@@ -9,6 +9,7 @@ class Operators:
     """Input: probably a Fields object"""
 
     def __init__(self, fields: Fields):
+        print("Constructing Dx")
         self.Dx = self.differentiate_1(
             fields.N1,
             fields.N2,
@@ -35,6 +36,7 @@ class Operators:
             2,
         )
 
+        print("Constructing Dy")
         self.Dy = self.differentiate_1(
             fields.N1,
             fields.N2,
@@ -299,7 +301,7 @@ class Operators:
         M = sps.dia_matrix(
             ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
             (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
-        ).tocsr()
+        ).todok()
 
         for i in inz - 1:
             for j in inx:
@@ -399,7 +401,7 @@ class Operators:
         M = sps.dia_matrix(
             ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
             (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
-        )
+        ).todok()
 
         for i in iny:
             for j in inx:
@@ -501,7 +503,7 @@ class Operators:
         M = sps.dia_matrix(
             ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
             (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
-        )
+        ).todok()
 
         for i in iny:
             for j in inx:
@@ -599,7 +601,7 @@ class Operators:
         M = sps.dia_matrix(
             ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
             (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
-        )
+        ).todok()
 
         for i in iny:
             for j in inx:
@@ -693,8 +695,8 @@ class Operators:
                             - 2
                             / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k]))
                         )
-        i = round(N1 / 2) - 1
-        j = N2 / 2 - 1
+        i = int(round(N1 / 2) - 1)
+        j = int(round(N2 / 2) - 1)
         k = 0
 
         M[A0[i, j, k], A0[i, j, k]] = (
