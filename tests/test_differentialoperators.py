@@ -34,3 +34,10 @@ def load_mat_file(name: str) -> np.ndarray:
 def operators() -> Operators:
     fields = Fields(DEFAULT_CASE)
     return Operators(fields)
+
+
+@pytest.mark.parametrize(
+    "attr, mat", [("Dx", "Dx.mat"), ("Dy", "Dy.mat"), ("Dz", "Dz.mat")]
+)
+def test_first_order_derivatives(operators: Operators) -> None:
+    pass
