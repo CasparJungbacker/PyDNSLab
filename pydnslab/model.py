@@ -8,6 +8,8 @@ import scipy.sparse.linalg as spsl
 
 from pydnslab.createfields import Fields
 from pydnslab.differentialoperators import Operators
+from pydnslab.solver import solver
+from pydnslab.projection import projection
 
 
 class Model:
@@ -54,27 +56,6 @@ class Model:
 
         # TODO: petsc
         self.precon = spsl.spilu(self.operators.M)
-
-    def projection(self) -> None:
-        div = (
-            self.operators.Dx.dot(self.fields.u)
-            + self.operators.Dy.dot(self.fields.v)
-            + self.operators.Dz.dot(self.fields.w)
-        )
-
-        p, exit_code = spsl.bicgstab(
-            -self.operators.M, div, x0=self.fields.pold, tol=1e-3, M=self.precon
-        )
-
-        self.fields.pold = p
-
-        px = self.operators.Dxp.dot(p)
-        py = self.operators.Dyp.dot(p)
-        pz = self.operators.Dzp.dot(p)
-
-        self.fields.u -= px
-        self.fields.v -= py
-        self.fields.w -= pz
 
     def run(self):
         pass
