@@ -33,6 +33,6 @@ def solver(
                 du += a[i, j] * uk[:, j]
                 dv += a[i, j] * vk[:, j]
                 dw += a[i, j] * wk[:, j]
-            u = uold + dt * du
-            v = vold + dt * dv
-            w = wold + dt * dw
+            fields.u = uold + dt * du
+            fields.v = vold + dt * dv
+            fields.w = wold + dt * dw
