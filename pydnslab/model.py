@@ -18,34 +18,32 @@ class Model:
         self.fields: Fields = None
         self.operators: Operators = None
         self.precon: sps.coo_matrix = None
-        
+
         # Coefficients for Runge-Kutta time integration
-        if case['tim'] == 1:
+        if case["tim"] == 1:
             self.s = 1
-            self.a = 0
+            self.a = np.array([0])
             self.b = 1
             self.c = 0
 
-        elif case['tim'] == 2:
+        elif case["tim"] == 2:
             self.s = 2
             self.a = np.array([[0, 0], [1, 0]])
             self.b = np.array([0.5, 0.5])
             self.c = np.array([0, 1])
-        
-        elif case['tim'] == 3:
+
+        elif case["tim"] == 3:
             self.s = 3
             self.a = np.array([[0, 0, 0], [0.5, 0, 0], [-1, 2, 0]])
-            self.b = np.array([1/6, 2/3, 1/6])
+            self.b = np.array([1 / 6, 2 / 3, 1 / 6])
             self.c = np.array([0, 0.5, 1])
 
-        elif case['tim'] == 4:
+        elif case["tim"] == 4:
             s = 4
-            self.a = np.array([
-                [0, 0, 0, 0],
-                [0.5, 0, 0, 0],
-                [0, 0.5, 0, 0],
-                [0, 0, 1, 0]])
-            self.b = np.array([1/6, 1/3, 1/3, 1/6])
+            self.a = np.array(
+                [[0, 0, 0, 0], [0.5, 0, 0, 0], [0, 0.5, 0, 0], [0, 0, 1, 0]]
+            )
+            self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6])
             self.c = np.array([0, 0.5, 0.5, 1])
 
         self.initialize()
@@ -78,10 +76,6 @@ class Model:
         self.fields.v -= py
         self.fields.w -= pz
 
-
     def run(self):
         pass
     
-    
-    def solve(self):
-        
