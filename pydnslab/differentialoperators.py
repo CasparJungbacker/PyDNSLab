@@ -1,5 +1,5 @@
-import scipy as sp
 import scipy.sparse as sps
+import scipy.sparse.linalg as spsl
 import numpy as np
 
 from pydnslab.createfields import Fields
@@ -9,7 +9,6 @@ class Operators:
     """Input: probably a Fields object"""
 
     def __init__(self, fields: Fields):
-        print("Constructing Dx")
         self.Dx = self.differentiate_1(
             fields.N1,
             fields.N2,
@@ -36,7 +35,6 @@ class Operators:
             2,
         )
 
-        print("Constructing Dy")
         self.Dy = self.differentiate_1(
             fields.N1,
             fields.N2,
@@ -269,6 +267,9 @@ class Operators:
             fields.air,
             fields.ground,
         )
+
+        # Preconditioner
+        self.M_inv_approx = spsl.spilu(self.M)
 
     @staticmethod
     def differentiate_1(
