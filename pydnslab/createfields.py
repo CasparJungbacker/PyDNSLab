@@ -56,7 +56,7 @@ class Fields:
         self.V = np.copy(self.U)
         self.W = np.copy(self.U)
 
-        self._init_channel_flow(case["runmode"], case["u_nom"], case["u_f"])
+        self._init_channel_flow(case["runmode"], case["unom"], case["uf"])
 
         self.A0 = self.A[self.inz, :, :] - self.N1 * self.N2
         self.AN = self.A0[:, :, self.north].flatten()

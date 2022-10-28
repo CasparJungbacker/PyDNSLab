@@ -10,6 +10,7 @@ from pydnslab.createfields import Fields
 from pydnslab.differentialoperators import Operators
 from pydnslab.solver import solver
 from pydnslab.projection import projection
+from pydnslab.adjust_timestep import adjust_timestep
 
 
 class Model:
@@ -54,9 +55,29 @@ class Model:
         self.fields = Fields(self.case)
         self.operators = Operators(self.fields)
 
-        # TODO: petsc
-        self.precon = spsl.spilu(self.operators.M)
-
     def run(self):
-        pass
-    
+
+        # Initial projection
+        projection(self.fields, self.operators)
+
+        # Main time loop
+        for i in range(self.case["nsteps"]):
+            if self.case["fixed_dt"]:
+                dt = self.case["dt"]
+            else:
+                dt = adjust_timestep(
+                    self.fields, self.case["dt"], self.case["co_target"]
+                )
+            solver(
+                self.fields,
+                self.operators,
+                self.s,
+                self.a,
+                self.b,
+                self.c,
+                dt,
+                self.case["nu"],
+                self.case["gx"],
+                self.case["gy"],
+                self.case["gz"],
+            )

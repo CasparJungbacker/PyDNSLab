@@ -39,7 +39,7 @@ def case_setup(
     if tim not in [1, 2, 3, 4]:
         raise ValueError("Time integration order should be one of [1, 2, 3, 4].")
 
-    if interpolate_new and runmode is not 2:
+    if interpolate_new and runmode != 2:
         runmode = 2
 
     if not isinstance(nsteps, int):

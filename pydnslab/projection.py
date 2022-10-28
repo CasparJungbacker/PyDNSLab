@@ -9,7 +9,7 @@ from pydnslab.createfields import Fields
 from pydnslab.differentialoperators import Operators
 
 
-def projection(fields: Fields, operators: Operators, preconditioner: Any) -> int:
+def projection(fields: Fields, operators: Operators) -> int:
 
     div = (
         operators.Dx.dot(fields.u)
@@ -18,7 +18,7 @@ def projection(fields: Fields, operators: Operators, preconditioner: Any) -> int
     )
 
     p, exit_code = spsl.bicgstab(
-        -operators.M, div, x0=fields.pold, tol=1e-3, M=preconditioner
+        -operators.M, div, x0=fields.pold, tol=1e-3, M=operators.M_inv_approx
     )
 
     fields.pold = p
