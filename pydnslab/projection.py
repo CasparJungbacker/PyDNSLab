@@ -9,7 +9,7 @@ from pydnslab.createfields import Fields
 from pydnslab.differentialoperators import Operators
 
 
-def projection(fields: Fields, operators: Operators, preconditioner: Any) -> None:
+def projection(fields: Fields, operators: Operators, preconditioner: Any) -> int:
 
     div = (
         operators.Dx.dot(fields.u)
@@ -30,3 +30,5 @@ def projection(fields: Fields, operators: Operators, preconditioner: Any) -> Non
     fields.u -= px
     fields.v -= py
     fields.w -= pz
+
+    return exit_code
