@@ -269,7 +269,9 @@ class Operators:
         )
 
         # Preconditioner
-        self.M_inv_approx = spsl.spilu(self.M)
+        self.M_inv_approx = self.preconditioner(
+            self.M, fields.N1 * fields.N2 * (fields.N3 - 2)
+        )
 
     @staticmethod
     def differentiate_1(
@@ -571,6 +573,8 @@ class Operators:
                                 * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
                             )
 
+        return M
+
     @staticmethod
     def poisson_matrix(
         N1: int,
@@ -709,4 +713,11 @@ class Operators:
             - 4 / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k]))
         )
 
+        return M
+
+    @staticmethod
+    def preconditioner(A: sps.spmatrix, N: int) -> spsl.LinearOperator:
+        ilu = spsl.spilu(A)
+        Mx = lambda x: ilu.solve(x)
+        M = spsl.LinearOperator((N, N), Mx)
         return M

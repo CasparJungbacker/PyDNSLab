@@ -66,9 +66,9 @@ class Fields:
         self.AA = self.A[self.air, :, :].flatten() - self.N1 * self.N2
         self.AG = self.A[self.ground, :, :].flatten() - self.N1 * self.N2
 
-        self.u = np.reshape(self.U, (self.N1 * self.N2 * (self.N3 - 2), 1))
-        self.v = np.reshape(self.V, (self.N1 * self.N2 * (self.N3 - 2), 1))
-        self.w = np.reshape(self.W, (self.N1 * self.N2 * (self.N3 - 2), 1))
+        self.u = self.U.flatten()
+        self.v = self.V.flatten()
+        self.w = self.W.flatten()
 
         self.pold = np.zeros((self.N1 * self.N2 * (self.N3 - 2), 1))
 

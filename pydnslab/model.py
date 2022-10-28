@@ -42,7 +42,7 @@ class Model:
             self.c = np.array([0, 0.5, 1])
 
         elif case["tim"] == 4:
-            s = 4
+            self.s = 4
             self.a = np.array(
                 [[0, 0, 0, 0], [0.5, 0, 0, 0], [0, 0.5, 0, 0], [0, 0, 1, 0]]
             )
@@ -81,3 +81,6 @@ class Model:
                 self.case["gy"],
                 self.case["gz"],
             )
+
+            if i % 10 == 0:
+                print(f"step: {i}")

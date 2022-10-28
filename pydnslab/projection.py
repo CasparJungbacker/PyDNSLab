@@ -27,8 +27,8 @@ def projection(fields: Fields, operators: Operators) -> int:
     py = operators.Dyp.dot(p)
     pz = operators.Dzp.dot(p)
 
-    fields.u -= px
-    fields.v -= py
-    fields.w -= pz
+    fields.u = fields.u - px
+    fields.v = fields.v - py
+    fields.w = fields.w - pz
 
     return exit_code
