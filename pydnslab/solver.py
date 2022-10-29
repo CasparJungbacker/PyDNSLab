@@ -39,7 +39,7 @@ def solver(
         dv = du
         dw = du
 
-        if i >= 1:
+        if i > 0:
             for j in range(s):
                 du += a[i, j] * uk[:, j]
                 dv += a[i, j] * vk[:, j]
@@ -103,7 +103,7 @@ def solver(
         vc += dt * b[i] * vk[:, i]
         wc += dt * b[i] * wk[:, i]
 
-        if i == s:
+        if i == s - 1:
             fields.u = uc
             fields.v = vc
             fields.w = wc
