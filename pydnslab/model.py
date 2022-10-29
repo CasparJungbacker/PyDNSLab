@@ -7,7 +7,7 @@ import scipy.sparse as sps
 import scipy.sparse.linalg as spsl
 
 from pydnslab.createfields import Fields
-from pydnslab.differentialoperators import Operators
+from pydnslab.scipy_operators import ScipyOperators
 from pydnslab.solver import solver
 from pydnslab.projection import projection
 from pydnslab.adjust_timestep import adjust_timestep
@@ -19,7 +19,7 @@ class Model:
 
         # To be initialized
         self.fields: Fields = None
-        self.operators: Operators = None
+        self.operators: ScipyOperators = None
         self.precon: sps.coo_matrix = None
 
         # Coefficients for Runge-Kutta time integration
@@ -53,7 +53,7 @@ class Model:
 
     def initialize(self) -> None:
         self.fields = Fields(self.case)
-        self.operators = Operators(self.fields)
+        self.operators = ScipyOperators(self.fields)
 
     def run(self):
 
@@ -82,5 +82,5 @@ class Model:
                 self.case["gz"],
             )
 
-            if i % 10 == 0:
+            if i % 100 == 0:
                 print(f"step: {i}")

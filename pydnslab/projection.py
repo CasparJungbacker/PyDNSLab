@@ -1,15 +1,15 @@
 from typing import Any
 import numpy as np
 import scipy.sparse as sps
-import scipy.sparse.linalg as spsl
+from scipy.sparse.linalg import bicgstab
 
 from typing import Any
 
 from pydnslab.createfields import Fields
-from pydnslab.differentialoperators import Operators
+from pydnslab.scipy_operators import ScipyOperators
 
 
-def projection(fields: Fields, operators: Operators) -> int:
+def projection(fields: Fields, operators: ScipyOperators) -> int:
 
     div = (
         operators.Dx.dot(fields.u)
@@ -17,7 +17,7 @@ def projection(fields: Fields, operators: Operators) -> int:
         + operators.Dz.dot(fields.w)
     )
 
-    p, exit_code = spsl.bicgstab(
+    p, exit_code = bicgstab(
         -operators.M, div, x0=fields.pold, tol=1e-3, M=operators.M_inv_approx
     )
 

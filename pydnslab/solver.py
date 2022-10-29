@@ -1,13 +1,13 @@
 import numpy as np
 
 from pydnslab.createfields import Fields
-from pydnslab.differentialoperators import Operators
+from pydnslab.scipy_operators import ScipyOperators
 from pydnslab.projection import projection
 
 
 def solver(
     fields: Fields,
-    operators: Operators,
+    operators: ScipyOperators,
     s: int,
     a: np.ndarray,
     b: np.ndarray,
