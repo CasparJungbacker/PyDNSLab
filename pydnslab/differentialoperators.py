@@ -371,6 +371,9 @@ class Operators:
                                     - FZ0 / (FZA + FZ0)
                                 )
                             )
+
+        M = M.tocoo()
+
         return M
 
     @staticmethod
@@ -472,6 +475,8 @@ class Operators:
                                     + FZ0 / (FZA + FZ0)
                                 )
                             )
+        M = M.tocoo()
+
         return M
 
     @staticmethod
@@ -572,6 +577,8 @@ class Operators:
                                 FZ[i + 1, j, k]
                                 * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
                             )
+
+        M = M.tocoo()
 
         return M
 
@@ -712,6 +719,8 @@ class Operators:
             - 2 / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k]))
             - 4 / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k]))
         )
+
+        M = M.tocoo()
 
         return M
 
