@@ -560,7 +560,7 @@ class ScipyOperators:
                                 * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
                             )
                         else:
-                            M[A0[i, j, k], AG[A0[i, j, k]]] = -2 / (
+                            M[A0[i, j, k], A0[i, j, k]] = -2 / (
                                 FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
                             ) - 4 / (
                                 FZ[i + 1, j, k]
