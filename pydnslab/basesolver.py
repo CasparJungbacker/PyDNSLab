@@ -14,7 +14,7 @@ class Solver(ABC):
 
     @staticmethod
     @abstractmethod
-    def adjust_timestep(fields: Fields, dt: float, case: str) -> float:
+    def adjust_timestep(fields: Fields, dt: float, co_target: float) -> float:
         pass
 
     @staticmethod
