@@ -17,9 +17,9 @@ class Solver(ABC):
     def adjust_timestep(fields: Fields, dt: float, co_target: float) -> float:
         pass
 
-    @staticmethod
     @abstractmethod
     def timestep(
+        self,
         fields: Fields,
         operators: Operators,
         s: int,
