@@ -11,6 +11,7 @@ from pydnslab.scipy_operators import ScipyOperators
 from pydnslab.solver import solver
 from pydnslab.projection import projection
 from pydnslab.adjust_timestep import adjust_timestep
+from pydnslab.statistics import Statistics
 
 
 class Model:
@@ -54,6 +55,7 @@ class Model:
     def initialize(self) -> None:
         self.fields = Fields(self.case)
         self.operators = ScipyOperators(self.fields)
+        self.statistics = Statistics(self.fields, self.case)
 
     def run(self):
 
@@ -81,6 +83,8 @@ class Model:
                 self.case["gy"],
                 self.case["gz"],
             )
+
+            self.statistics.update(self.fields)
 
             if i % 100 == 0:
                 print(f"step: {i}")
