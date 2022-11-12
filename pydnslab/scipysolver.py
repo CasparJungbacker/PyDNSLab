@@ -8,7 +8,7 @@ from pydnslab.scipy_operators import ScipyOperators  # NOT the base class
 
 class ScipySolver(Solver):
     @staticmethod
-    def projections(fields: Fields, operators: ScipyOperators) -> None:
+    def projection(fields: Fields, operators: ScipyOperators) -> None:
         div = (
             operators.Dx.dot(fields.u)
             + operators.Dy.dot(fields.v)
