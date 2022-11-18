@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Grid:
-    def __init__(self, res: int, l_scale: float, w_scale: float):
+    def __init__(self, res: int, l_scale: float, w_scale: float) -> None:
         self.N1: int = int(2 * res * w_scale)
         self.N2: int = int(2 * res * l_scale)
         self.N3: int = res + 2
