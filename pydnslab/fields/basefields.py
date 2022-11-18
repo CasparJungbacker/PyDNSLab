@@ -8,7 +8,7 @@ class Fields(ABC):
         pass
 
     @abstractmethod
-    def update(self, dp: Any, du: Any, dv: Any, dw: Any):
+    def update(self, du: Any, dv: Any, dw: Any, pnew: Any = None):
         pass
 
     @property
