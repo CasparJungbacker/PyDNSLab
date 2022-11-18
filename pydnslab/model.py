@@ -5,10 +5,11 @@ generate differential operators,
 import numpy as np
 import scipy.sparse as sps
 import scipy.sparse.linalg as spsl
+import matplotlib.pyplot as plt
 
 from pydnslab.createfields import Fields
 from pydnslab.scipy_operators import ScipyOperators
-from pydnslab.solver import solver
+from pydnslab.scipysolver import ScipySolver
 from pydnslab.projection import projection
 from pydnslab.adjust_timestep import adjust_timestep
 from pydnslab.statistics import Statistics
@@ -50,18 +51,15 @@ class Model:
             self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6])
             self.c = np.array([0, 0.5, 0.5, 1])
 
-        self.initialize()
-
-    def initialize(self) -> None:
         self.fields = Fields(self.case)
         self.operators = ScipyOperators(self.fields)
         self.statistics = Statistics(self.fields, self.case)
+        self.solver = ScipySolver()
 
     def run(self):
 
         # Initial projection
-        projection(self.fields, self.operators)
-
+        self.fields = self.solver.projection(self.fields, self.operators)
         # Main time loop
         for i in range(self.case["nsteps"]):
             if self.case["fixed_dt"]:
@@ -70,7 +68,8 @@ class Model:
                 dt = adjust_timestep(
                     self.fields, self.case["dt"], self.case["co_target"]
                 )
-            solver(
+
+            self.fields = self.solver.timestep(
                 self.fields,
                 self.operators,
                 self.s,
@@ -88,3 +87,7 @@ class Model:
 
             if i % 100 == 0:
                 print(f"step: {i}")
+
+        plt.figure
+        plt.plot(self.statistics.yplumean, self.statistics.uplumean, "o")
+        plt.show()

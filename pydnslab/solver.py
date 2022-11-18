@@ -41,9 +41,9 @@ def solver(
 
         if i > 0:
             for j in range(s):
-                du += a[i, j] * uk[:, j]
-                dv += a[i, j] * vk[:, j]
-                dw += a[i, j] * wk[:, j]
+                du = du + a[i, j] * uk[:, j]
+                dv = dv + a[i, j] * vk[:, j]
+                dw = dw + a[i, j] * wk[:, j]
             fields.u = uold + dt * du
             fields.v = vold + dt * dv
             fields.w = wold + dt * dw
@@ -99,14 +99,13 @@ def solver(
         vk[:, i] = -conv_y + diff_y + gy
         wk[:, i] = -conv_z + diff_z + gz
 
-        uc += dt * b[i] * uk[:, i]
-        vc += dt * b[i] * vk[:, i]
-        wc += dt * b[i] * wk[:, i]
+        uc = uc + dt * b[i] * uk[:, i]
+        vc = vc + dt * b[i] * vk[:, i]
+        wc = wc + dt * b[i] * wk[:, i]
 
-        if i == s - 1:
-            fields.u = uc
-            fields.v = vc
-            fields.w = wc
+    fields.u = uc
+    fields.v = vc
+    fields.w = wc
 
     projection(fields, operators)
 

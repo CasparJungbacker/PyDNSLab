@@ -9,7 +9,7 @@ from pydnslab.base_operators import Operators
 class Solver(ABC):
     @staticmethod
     @abstractmethod
-    def projections(fields: Fields, operators: Operators) -> None:
+    def projection(fields: Fields, operators: Operators) -> Fields:
         pass
 
     @staticmethod
@@ -31,5 +31,5 @@ class Solver(ABC):
         gx: float,
         gy: float,
         gz: float,
-    ) -> None:
+    ) -> Fields:
         pass

@@ -8,7 +8,7 @@ from pydnslab.scipy_operators import ScipyOperators  # NOT the base class
 
 class ScipySolver(Solver):
     @staticmethod
-    def projection(fields: Fields, operators: ScipyOperators) -> None:
+    def projection(fields: Fields, operators: ScipyOperators) -> Fields:
         div = (
             operators.Dx.dot(fields.u)
             + operators.Dy.dot(fields.v)
@@ -28,6 +28,8 @@ class ScipySolver(Solver):
         fields.u = fields.u - px
         fields.v = fields.v - py
         fields.w = fields.w - pz
+
+        return fields
 
     @staticmethod
     def adjust_timestep(fields: Fields, dt: float, co_target: float) -> float:
@@ -55,7 +57,7 @@ class ScipySolver(Solver):
         gx: float,
         gy: float,
         gz: float,
-    ) -> None:
+    ) -> Fields:
 
         fields.u = fields.U.flatten()
         fields.v = fields.V.flatten()
@@ -87,7 +89,7 @@ class ScipySolver(Solver):
                 fields.v = vold + dt * dv
                 fields.w = wold + dt * dw
 
-                self.projection(fields, operators)
+                fields = self.projection(fields, operators)
 
             # Convection term
             conv_x = 0.5 * (
@@ -147,8 +149,10 @@ class ScipySolver(Solver):
                 fields.v = vc
                 fields.w = wc
 
-        self.projection(fields, operators)
+        fields = self.projection(fields, operators)
 
         fields.U = np.reshape(fields.u, np.shape(fields.U))
         fields.V = np.reshape(fields.v, np.shape(fields.V))
         fields.W = np.reshape(fields.w, np.shape(fields.W))
+
+        return fields
