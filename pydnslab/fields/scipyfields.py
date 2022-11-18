@@ -31,7 +31,7 @@ class ScipyFields(Fields):
         self._pold = np.zeros(dim)
 
     def update(
-        self, pnew: np.ndarray, du: np.ndarray, dv: np.ndarray, dw: np.ndarray
+        self, du: np.ndarray, dv: np.ndarray, dw: np.ndarray, pnew: np.ndarray = None
     ) -> None:
         self.u = self.u + du
         self.v = self.v + dv
