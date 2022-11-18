@@ -15,3 +15,8 @@ class Fields(ABC):
     @abstractmethod
     def pold(self):
         pass
+
+    @pold.setter
+    @abstractmethod
+    def pold(self):
+        pass
