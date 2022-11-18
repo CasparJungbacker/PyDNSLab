@@ -10,3 +10,8 @@ class Fields(ABC):
     @abstractmethod
     def update(self, dp: Any, du: Any, dv: Any, dw: Any):
         pass
+
+    @property
+    @abstractmethod
+    def pold(self):
+        pass
