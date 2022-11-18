@@ -7,6 +7,9 @@ class Grid:
         self.N2: int = int(2 * res * l_scale)
         self.N3: int = res + 2
 
+        # Helper variable for array construction
+        self.griddim: tuple[int, ...] = (self.N3 - 2, self.N2, self.N3)
+
         self.length: float = 4 * np.pi * l_scale
         self.width: float = 2 * np.pi * w_scale
         self.height: float = 2
