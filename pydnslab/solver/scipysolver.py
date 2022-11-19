@@ -1,39 +1,46 @@
 import numpy as np
 import scipy.sparse.linalg as spsl
 
-from pydnslab.basesolver import Solver
+from pydnslab.solver.basesolver import Solver
 from pydnslab.createfields import Fields
-from pydnslab.scipy_operators import ScipyOperators  # NOT the base class
+from pydnslab.grid import Grid
+from pydnslab.operators.scipy_operators import ScipyOperators  # NOT the base class
+
+__all__ = ["ScipySolver"]
 
 
 class ScipySolver(Solver):
     @staticmethod
-    def projections(fields: Fields, operators: ScipyOperators) -> None:
+    def projection(fields: Fields, operators: ScipyOperators) -> tuple[np.ndarray, ...]:
         div = (
             operators.Dx.dot(fields.u)
             + operators.Dy.dot(fields.v)
             + operators.Dz.dot(fields.w)
         )
 
+        # TODO: throw error on non-zero error code
         p, exit_code = spsl.bicgstab(
             -operators.M, div, x0=fields.pold, tol=1e-3, M=operators.M_inv_approx
         )
 
-        fields.pold = p
+        if exit_code != 0:
+            raise AssertionError(f"Bicgstab exited with exit code {exit_code}")
 
-        px = operators.Dxp.dot(p)
-        py = operators.Dyp.dot(p)
-        pz = operators.Dzp.dot(p)
+        pnew = p
 
-        fields.u = fields.u - px
-        fields.v = fields.v - py
-        fields.w = fields.w - pz
+        du = operators.Dxp.dot(p)
+        dv = operators.Dyp.dot(p)
+        dz = operators.Dzp.dot(p)
+
+        return pnew, du, dv, dz
 
     @staticmethod
-    def adjust_timestep(fields: Fields, dt: float, co_target: float) -> float:
-        cox = fields.U * dt / fields.FX[1 : fields.N3 - 1]
-        coy = fields.V * dt / fields.FY[1 : fields.N3 - 1]
-        coz = fields.W * dt / fields.FZ[1 : fields.N3 - 1]
+    def adjust_timestep(
+        fields: Fields, grid: Grid, dt: float, co_target: float
+    ) -> float:
+        cox = fields.U * dt / grid.FX[1 : grid.N3 - 1]
+        coy = fields.V * dt / grid.FY[1 : grid.N3 - 1]
+        coz = fields.W * dt / grid.FZ[1 : grid.N3 - 1]
 
         co = cox + coy + coz
         comax = np.amax(co)
@@ -46,6 +53,7 @@ class ScipySolver(Solver):
         self,
         fields: Fields,
         operators: ScipyOperators,
+        grid: Grid,
         s: int,
         a: np.ndarray,
         b: np.ndarray,
@@ -55,7 +63,7 @@ class ScipySolver(Solver):
         gx: float,
         gy: float,
         gz: float,
-    ) -> None:
+    ) -> tuple[np.ndarray, ...]:
 
         fields.u = fields.U.flatten()
         fields.v = fields.V.flatten()
@@ -69,12 +77,12 @@ class ScipySolver(Solver):
         vc = fields.v
         wc = fields.w
 
-        uk = np.zeros((fields.N1 * fields.N2 * (fields.N3 - 2), s))
+        uk = np.zeros((grid.N1 * grid.N2 * (grid.N3 - 2), s))
         vk = uk
         wk = uk
 
         for i in range(s):
-            du = np.zeros(fields.N1 * fields.N2 * (fields.N3 - 2))
+            du = np.zeros(grid.N1 * grid.N2 * (grid.N3 - 2))
             dv = du
             dw = du
 
@@ -87,7 +95,8 @@ class ScipySolver(Solver):
                 fields.v = vold + dt * dv
                 fields.w = wold + dt * dw
 
-                self.projection(fields, operators)
+                pnew, du, dv, dw = self.projection(fields, operators)
+                fields.update(du, dv, dw, pnew)
 
             # Convection term
             conv_x = 0.5 * (
@@ -142,13 +151,8 @@ class ScipySolver(Solver):
             vc += dt * b[i] * vk[:, i]
             wc += dt * b[i] * wk[:, i]
 
-            if i == s - 1:
-                fields.u = uc
-                fields.v = vc
-                fields.w = wc
+        du = uc - uold
+        dv = vc - vold
+        dw = wc - wold
 
-        self.projection(fields, operators)
-
-        fields.U = np.reshape(fields.u, np.shape(fields.U))
-        fields.V = np.reshape(fields.v, np.shape(fields.V))
-        fields.W = np.reshape(fields.w, np.shape(fields.W))
+        return du, dv, dw

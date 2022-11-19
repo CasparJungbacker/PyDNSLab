@@ -104,6 +104,7 @@ def case_setup(
         res=res,
         w_scale=w_scale,
         l_scale=l_scale,
+        engine="scipy",
         N1=N1,
         N2=N2,
         N3=N3,
@@ -118,10 +119,10 @@ def case_setup(
         gy=gy,
         gz=gz,
         dhdy=dhyd,
-        unom=unom,
+        u_nom=unom,
         uscale=uscale,
         utnom=utnom,
-        uf=uf,
+        u_f=uf,
         dt=dt,
     )
 

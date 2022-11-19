@@ -3,3 +3,4 @@
 build/*
 PyDNSLab.egg-info/*
 .vscode/*
+*.pyc

@@ -3,13 +3,16 @@ import numpy as np
 from abc import ABC, abstractmethod
 
 from pydnslab.createfields import Fields
-from pydnslab.base_operators import Operators
+from pydnslab.operators import Operators
+from pydnslab.grid import Grid
+
+__all__ = ["Solver"]
 
 
 class Solver(ABC):
     @staticmethod
     @abstractmethod
-    def projections(fields: Fields, operators: Operators) -> None:
+    def projection(fields: Fields, operators: Operators) -> Fields:
         pass
 
     @staticmethod
@@ -22,6 +25,7 @@ class Solver(ABC):
         self,
         fields: Fields,
         operators: Operators,
+        grid: Grid,
         s: int,
         a: np.ndarray,
         b: np.ndarray,
@@ -31,5 +35,5 @@ class Solver(ABC):
         gx: float,
         gy: float,
         gz: float,
-    ) -> None:
+    ) -> Fields:
         pass
