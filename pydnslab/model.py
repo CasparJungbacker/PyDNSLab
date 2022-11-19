@@ -7,87 +7,77 @@ import scipy.sparse as sps
 import scipy.sparse.linalg as spsl
 import matplotlib.pyplot as plt
 
-from pydnslab.createfields import Fields
-from pydnslab.scipy_operators import ScipyOperators
-from pydnslab.scipysolver import ScipySolver
-from pydnslab.projection import projection
-from pydnslab.adjust_timestep import adjust_timestep
-from pydnslab.statistics import Statistics
+from pydnslab import butcher_tableau
+from pydnslab.grid import Grid
+from pydnslab.fields.get_fields import get_fields
+from pydnslab.solver.get_solver import get_solver
+from pydnslab.operators.get_operators import get_operators
+from pydnslab.fields.basefields import Fields
+from pydnslab.operators.base_operators import Operators
+from pydnslab.solver.basesolver import Solver
 
 
 class Model:
     def __init__(self, case: dict):
-        self.case: dict = case
+        self.settings: dict = case
 
-        # To be initialized
-        self.fields: Fields = None
-        self.operators: ScipyOperators = None
-        self.precon: sps.coo_matrix = None
+        self.grid: Grid = Grid(
+            self.settings["res"], self.settings["l_scale"], self.settings["w_scale"]
+        )
 
-        # Coefficients for Runge-Kutta time integration
-        if case["tim"] == 1:
-            self.s = 1
-            self.a = np.array([0])
-            self.b = 1
-            self.c = 0
+        self.operators: Operators = get_operators(self.grid, self.settings["engine"])
 
-        elif case["tim"] == 2:
-            self.s = 2
-            self.a = np.array([[0, 0], [1, 0]])
-            self.b = np.array([0.5, 0.5])
-            self.c = np.array([0, 1])
+        self.fields: Fields = get_fields(
+            self.grid.griddim,
+            self.settings["runmode"],
+            self.settings["u_nom"],
+            self.settings["u_f"],
+            self.settings["engine"],
+        )
 
-        elif case["tim"] == 3:
-            self.s = 3
-            self.a = np.array([[0, 0, 0], [0.5, 0, 0], [-1, 2, 0]])
-            self.b = np.array([1 / 6, 2 / 3, 1 / 6])
-            self.c = np.array([0, 0.5, 1])
+        self.solver: Solver = get_solver(self.settings["engine"])
 
-        elif case["tim"] == 4:
-            self.s = 4
-            self.a = np.array(
-                [[0, 0, 0, 0], [0.5, 0, 0, 0], [0, 0.5, 0, 0], [0, 0, 1, 0]]
-            )
-            self.b = np.array([1 / 6, 1 / 3, 1 / 3, 1 / 6])
-            self.c = np.array([0, 0.5, 0.5, 1])
-
-        self.fields = Fields(self.case)
-        self.operators = ScipyOperators(self.fields)
-        self.statistics = Statistics(self.fields, self.case)
-        self.solver = ScipySolver()
+        s, a, b, c = butcher_tableau(self.settings["tim"])
+        self.s: int = s
+        self.a: np.ndarray = a
+        self.b: np.ndarray = b
+        self.c: np.ndarray = c
 
     def run(self):
 
         # Initial projection
-        self.fields = self.solver.projection(self.fields, self.operators)
+        pnew, du, dv, dw = self.solver.projection(self.fields, self.operators)
+        self.fields.update(du, dv, dw, pnew)
+
         # Main time loop
-        for i in range(self.case["nsteps"]):
-            if self.case["fixed_dt"]:
-                dt = self.case["dt"]
+        for i in range(self.settings["nsteps"]):
+            if self.settings["fixed_dt"]:
+                dt = self.settings["dt"]
             else:
-                dt = adjust_timestep(
-                    self.fields, self.case["dt"], self.case["co_target"]
+                dt = self.solver.adjust_timestep(
+                    self.fields,
+                    self.grid,
+                    self.settings["dt"],
+                    self.settings["co_target"],
                 )
 
-            self.fields = self.solver.timestep(
+            du, dv, dw = self.solver.timestep(
                 self.fields,
                 self.operators,
+                self.grid,
                 self.s,
                 self.a,
                 self.b,
                 self.c,
                 dt,
-                self.case["nu"],
-                self.case["gx"],
-                self.case["gy"],
-                self.case["gz"],
+                self.settings["nu"],
+                self.settings["gx"],
+                self.settings["gy"],
+                self.settings["gz"],
             )
 
-            self.statistics.update(self.fields)
+            self.fields.update(du, dv, dw)
 
-            if i % 100 == 0:
-                print(f"step: {i}")
+            pnew, du, dv, dw = self.solver.projection(self.fields, self.operators)
 
-        plt.figure
-        plt.plot(self.statistics.yplumean, self.statistics.uplumean, "o")
-        plt.show()
+            self.fields.update(du, dv, dw, pnew)
