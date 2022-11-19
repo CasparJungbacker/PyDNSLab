@@ -2,6 +2,8 @@ import numpy as np
 
 from pydnslab.fields.basefields import Fields
 
+__all__ = ["ScipyFields"]
+
 
 class ScipyFields(Fields):
     def __init__(self, dim: tuple, runmode: int, u_nom: float, u_f: float) -> None:
@@ -28,7 +30,7 @@ class ScipyFields(Fields):
         self.w = self.W.flatten()
 
         # Pressure of previous iteration
-        self._pold = np.zeros(dim)
+        self._pold = np.zeros(dim[0] * dim[1] * dim[2])
 
     def update(
         self, du: np.ndarray, dv: np.ndarray, dw: np.ndarray, pnew: np.ndarray = None
@@ -36,7 +38,9 @@ class ScipyFields(Fields):
         self.u = self.u + du
         self.v = self.v + dv
         self.w = self.w + dw
-        self.pold = pnew
+
+        if pnew is not None:
+            self.pold = pnew
 
     @property
     def pold(self):
@@ -44,8 +48,10 @@ class ScipyFields(Fields):
 
     @pold.setter
     def pold(self, pnew):
-        if not isinstance(pnew, self._pold):
-            raise TypeError(f"New pressure must be of type {type(self._pold)}")
+        if not isinstance(pnew, type(self._pold)):
+            raise TypeError(
+                f"New pressure must be of type {type(self._pold)}, but is of type {type(pnew)}"
+            )
         if np.shape(pnew) != np.shape(self._pold):
             raise ValueError(
                 f"Shape {np.shape(pnew)} of new pressure does not match shape {np.shape(self._pold)} of old pressure"

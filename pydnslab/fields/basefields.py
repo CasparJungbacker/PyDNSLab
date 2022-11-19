@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+__all__ = ["Fields"]
+
 
 class Fields(ABC):
     @abstractmethod
