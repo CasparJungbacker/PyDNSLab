@@ -8,7 +8,7 @@ class Grid:
         self.N3: int = res + 2
 
         # Helper variable for array construction
-        self.griddim: tuple[int, ...] = (self.N3 - 2, self.N2, self.N3)
+        self.griddim: tuple = (self.N3 - 2, self.N2, self.N1)
 
         self.length: float = 4 * np.pi * l_scale
         self.width: float = 2 * np.pi * w_scale
@@ -75,6 +75,14 @@ class Grid:
 
         self.air: np.ndarray = self.inz + 1
         self.ground: np.ndarray = self.inz - 1
+
+        self.A0 = self.A[self.inz, :, :] - self.N1 * self.N2
+        self.AN = self.A0[:, :, self.north].flatten()
+        self.AS = self.A0[:, :, self.south].flatten()
+        self.AE = self.A0[:, self.east, :].flatten()
+        self.AW = self.A0[:, self.west, :].flatten()
+        self.AA = self.A[self.air, :, :].flatten() - self.N1 * self.N2
+        self.AG = self.A[self.ground, :, :].flatten() - self.N1 * self.N2
 
     def init_enum_matrix(self, N1: int, N2: int, N3: int) -> np.ndarray:
         A = np.arange(N1 * N2 * N3)
