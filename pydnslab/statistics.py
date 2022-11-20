@@ -64,12 +64,10 @@ class Statistics:
         wplu2 = np.flip(wplu2, axis=0)
         wplu2_mean = wplu2.mean(axis=(1, 2))
 
-        yplu1 = grid.Z[self._z1] / self.nu * ut_mean
-        yplu1_mean = yplu1.mean(axis=(1, 2))
+        yplu1_mean = grid.z[1 : int(grid.N3 / 2)] / self.nu * ut_mean
 
-        yplu2 = (grid.height - grid.Z[self._z2]) / self.nu * ut_mean
-        yplu2 = np.flip(yplu2, axis=0)
-        yplu2_mean = yplu2.mean(axis=(1, 2))
+        yplu2 = (grid.height - grid.z[int(grid.N3 / 2) : -1]) / self.nu * ut_mean
+        yplu2_mean = np.flip(yplu2, axis=0)
 
         self.uplumean = 0.5 * (uplu1_mean + uplu2_mean)
         self.vplumean = 0.5 * (vplu1_mean + vplu2_mean)
