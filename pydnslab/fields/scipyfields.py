@@ -39,6 +39,10 @@ class ScipyFields(Fields):
         self.v = self.v + dv
         self.w = self.w + dw
 
+        self.U = np.reshape(self.u, np.shape(self.U))
+        self.V = np.reshape(self.v, np.shape(self.V))
+        self.W = np.reshape(self.w, np.shape(self.W))
+
         if pnew is not None:
             self.pold = pnew
 
