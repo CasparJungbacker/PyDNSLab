@@ -3,6 +3,8 @@ import numpy as np
 from pydnslab.grid import Grid
 from pydnslab.fields.basefields import Fields
 
+__all__ = ["Statistics"]
+
 
 class Statistics:
     def __init__(self, grid: Grid, case: dict) -> None:
