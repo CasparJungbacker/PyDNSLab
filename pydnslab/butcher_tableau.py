@@ -1,5 +1,7 @@
 import numpy as np
 
+__all__ = ["butcher_tableau"]
+
 
 def butcher_tableau(tim: int) -> tuple[int, np.ndarray, np.ndarray, np.ndarray]:
     if tim == 1:
