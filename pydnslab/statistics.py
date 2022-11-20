@@ -5,7 +5,7 @@ from pydnslab.fields.basefields import Fields
 
 
 class Statistics:
-    def __init__(self, grid: Grid, fields: Fields, case: dict) -> None:
+    def __init__(self, grid: Grid, case: dict) -> None:
         self._z1 = np.arange(grid.N3 / 2 - 1, dtype=np.int32)
         self._z2 = np.arange(grid.N3 / 2 - 1, grid.N3 - 2, dtype=np.int32)
         self._y1 = np.arange(grid.N1)
