@@ -3,6 +3,7 @@ Upon construction, the Model object will contruct a Fields object,
 generate differential operators, 
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
 from pydnslab import butcher_tableau
 from pydnslab.grid import Grid
@@ -12,6 +13,7 @@ from pydnslab.operators.get_operators import get_operators
 from pydnslab.fields.basefields import Fields
 from pydnslab.operators.base_operators import Operators
 from pydnslab.solver.basesolver import Solver
+from pydnslab.statistics import Statistics
 
 
 class Model:
@@ -33,6 +35,8 @@ class Model:
         )
 
         self.solver: Solver = get_solver(self.settings["engine"])
+
+        self.statistics: Statistics = Statistics(self.grid, self.settings)
 
         s, a, b, c = butcher_tableau(self.settings["tim"])
         self.s: int = s
@@ -78,3 +82,12 @@ class Model:
             pnew, du, dv, dw = self.solver.projection(self.fields, self.operators)
 
             self.fields.update(du, dv, dw, pnew)
+
+            self.statistics.update(self.grid, self.fields)
+
+            if i % 100 == 0:
+                print(i)
+
+        fig, ax = plt.subplots()
+        ax.plot(self.statistics.yplumean, self.statistics.uplumean)
+        plt.show()
