@@ -24,14 +24,16 @@ class Statistics:
         self.wplumean = None
         self.yplumean = None
 
-    def update(self, fields: Fields) -> None:
+    def update(self, grid: Grid, fields: Fields) -> None:
         # Shear velocity at the bottom
-        ut1 = np.sqrt((self.nu * np.abs(fields.U[0])) / fields.Z[0])
+        ut1 = np.sqrt((self.nu * np.abs(fields.U[0])) / grid.z[1])
 
         ut1_mean = ut1.mean()
 
         # Shear velocity at the top
-        ut2 = np.sqrt((self.nu * np.abs(fields.U[-1])) / fields.Z[-1])
+        ut2 = np.sqrt(
+            (self.nu * np.abs(fields.U[-1])) / (grid.height - grid.z[grid.N3 - 2])
+        )
 
         ut2_mean = ut2.mean()
 
@@ -62,10 +64,10 @@ class Statistics:
         wplu2 = np.flip(wplu2, axis=0)
         wplu2_mean = wplu2.mean(axis=(1, 2))
 
-        yplu1 = fields.Z[self._z1] / self.nu * ut_mean
+        yplu1 = grid.Z[self._z1] / self.nu * ut_mean
         yplu1_mean = yplu1.mean(axis=(1, 2))
 
-        yplu2 = (fields.height - fields.Z[self._z2]) / self.nu * ut_mean
+        yplu2 = (grid.height - grid.Z[self._z2]) / self.nu * ut_mean
         yplu2 = np.flip(yplu2, axis=0)
         yplu2_mean = yplu2.mean(axis=(1, 2))
 
@@ -73,4 +75,4 @@ class Statistics:
         self.vplumean = 0.5 * (vplu1_mean + vplu2_mean)
         self.wplumean = 0.5 * (wplu1_mean + wplu2_mean)
         self.yplumean = 0.5 * (yplu1_mean + yplu2_mean)
-        self.yplumean = self.yplumean.reshape(int(fields.N3 / 2 - 1))
+        self.yplumean = self.yplumean.reshape(int(grid.N3 / 2 - 1))
