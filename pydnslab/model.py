@@ -3,9 +3,6 @@ Upon construction, the Model object will contruct a Fields object,
 generate differential operators, 
 """
 import numpy as np
-import scipy.sparse as sps
-import scipy.sparse.linalg as spsl
-import matplotlib.pyplot as plt
 
 from pydnslab import butcher_tableau
 from pydnslab.grid import Grid
@@ -81,6 +78,3 @@ class Model:
             pnew, du, dv, dw = self.solver.projection(self.fields, self.operators)
 
             self.fields.update(du, dv, dw, pnew)
-
-            if i == 100:
-                print(i)
