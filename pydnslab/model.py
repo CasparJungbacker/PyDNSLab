@@ -81,3 +81,6 @@ class Model:
             pnew, du, dv, dw = self.solver.projection(self.fields, self.operators)
 
             self.fields.update(du, dv, dw, pnew)
+
+            if i == 100:
+                print(i)

@@ -2,7 +2,7 @@ import numpy as np
 
 from abc import ABC, abstractmethod
 
-from pydnslab.createfields import Fields
+from pydnslab.fields.basefields import Fields
 from pydnslab.operators import Operators
 from pydnslab.grid import Grid
 

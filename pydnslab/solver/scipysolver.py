@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse.linalg as spsl
 
 from pydnslab.solver.basesolver import Solver
-from pydnslab.createfields import Fields
+from pydnslab.fields.basefields import Fields
 from pydnslab.grid import Grid
 from pydnslab.operators.scipy_operators import ScipyOperators  # NOT the base class
 
@@ -65,35 +65,30 @@ class ScipySolver(Solver):
         gz: float,
     ) -> tuple[np.ndarray, ...]:
 
-        fields.u = fields.U.flatten()
-        fields.v = fields.V.flatten()
-        fields.w = fields.W.flatten()
+        uold = np.copy(fields.u)
+        vold = np.copy(fields.v)
+        wold = np.copy(fields.w)
 
-        uold = fields.u
-        vold = fields.v
-        wold = fields.w
-
-        uc = fields.u
-        vc = fields.v
-        wc = fields.w
+        uc = np.copy(fields.u)
+        vc = np.copy(fields.v)
+        wc = np.copy(fields.w)
 
         uk = np.zeros((grid.N1 * grid.N2 * (grid.N3 - 2), s))
-        vk = uk
-        wk = uk
+        vk = np.zeros_like(uk)
+        wk = np.zeros_like(uk)
 
         for i in range(s):
             du = np.zeros(grid.N1 * grid.N2 * (grid.N3 - 2))
-            dv = du
-            dw = du
+            dv = np.zeros_like(du)
+            dw = np.zeros_like(du)
 
             if i > 0:
                 for j in range(s):
                     du += a[i, j] * uk[:, j]
                     dv += a[i, j] * vk[:, j]
                     dw += a[i, j] * wk[:, j]
-                fields.u = uold + dt * du
-                fields.v = vold + dt * dv
-                fields.w = wold + dt * dw
+
+                fields.update(du * dt, dv * dt, dw * dt)
 
                 pnew, du, dv, dw = self.projection(fields, operators)
                 fields.update(du, dv, dw, pnew)
