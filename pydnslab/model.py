@@ -84,10 +84,3 @@ class Model:
             self.fields.update(du, dv, dw, pnew)
 
             self.statistics.update(self.grid, self.fields)
-
-            if i % 100 == 0:
-                print(i)
-
-        fig, ax = plt.subplots()
-        ax.plot(self.statistics.yplumean, self.statistics.uplumean)
-        plt.show()
