@@ -45,6 +45,9 @@ def test_enum_matrix(grid: Grid) -> None:
         ("x", "x.mat"),
         ("y", "y.mat"),
         ("z", "z.mat"),
+        ("X", "X_.mat"),
+        ("Y", "Y_.mat"),
+        ("Z", "Z_.mat"),
     ],
 )
 def test_gridpoints(grid: Grid, attr: str, mat: str) -> None:
@@ -52,31 +55,17 @@ def test_gridpoints(grid: Grid, attr: str, mat: str) -> None:
     np.testing.assert_almost_equal(getattr(grid, attr), arr)
 
 
-def test_xyz(grid: Grid) -> None:
-    x = load_mat_file("x.mat")
-    y = load_mat_file("y.mat")
-    z = load_mat_file("z.mat")
-    np.testing.assert_array_almost_equal(grid.x, x)
-    np.testing.assert_array_almost_equal(grid.y, y)
-    np.testing.assert_array_almost_equal(grid.z, z)
-
-
-def test_cell_size(grid: Grid) -> None:
-    FX = load_mat_file("FX.mat")
-    FY = load_mat_file("FY.mat")
-    FZ = load_mat_file("FZ_.mat")
-    np.testing.assert_array_almost_equal(grid.FX, FX.T)
-    np.testing.assert_array_almost_equal(grid.FY, FY.T)
-    np.testing.assert_array_almost_equal(grid.FZ, FZ.T)
-
-
-def test_XYZ(grid: Grid) -> None:
-    X = load_mat_file("X_.mat")
-    Y = load_mat_file("Y_.mat")
-    Z = load_mat_file("Z_.mat")
-    np.testing.assert_almost_equal(grid.X, X)
-    np.testing.assert_almost_equal(grid.Y, Y)
-    np.testing.assert_almost_equal(grid.Z, Z)
+@pytest.mark.parametrize(
+    "attr, mat",
+    [
+        ("FX", "FX.mat"),
+        ("FY", "FY.mat"),
+        ("FZ", "FZ_.mat"),
+    ],
+)
+def test_cell_size(grid: Grid, attr: str, mat: str) -> None:
+    arr = load_mat_file(mat)
+    np.testing.assert_array_almost_equal(getattr(grid, attr), arr.T)
 
 
 @pytest.mark.parametrize(
