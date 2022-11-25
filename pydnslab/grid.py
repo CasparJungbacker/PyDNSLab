@@ -1,5 +1,7 @@
 import numpy as np
 
+__all__ = ["Grid"]
+
 
 class Grid:
     def __init__(self, res: int, l_scale: float, w_scale: float) -> None:
