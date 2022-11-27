@@ -257,25 +257,27 @@ class ScipyOperators:
             cols_2 = np.zeros_like(data_1)
             cols_3 = np.zeros_like(data_1)
 
-            a = grid.AG[grid.A0.flatten()] >= 0
+            mask = grid.AG[grid.A0.flatten()] >= 0
 
-            data_2[a] = -1 / FZ0 * FZ0 / (FZ0 + FZG)
-            data_2[np.logical_not(a)] = (
+            data_2[mask] = (-1 / FZ0 * FZ0 / (FZ0 + FZG))[mask]
+            data_2[~mask] = (
                 1 / FZ0 * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0) - FZ0 / (FZG + FZ0))
+            )[~mask]
+
+            cols_2[mask] = grid.AG[mask]
+            cols_2[~mask] = grid.A0.flatten()[~mask]
+
+            mask = grid.AA[grid.A0.flatten()] <= int(
+                grid.N1 * grid.N2 * (grid.N3 - 2) - 1
             )
 
-            cols_2[a] = grid.AG[a]
-            cols_2[np.logical_not(a)] = grid.A0.flatten(np.logical_not(a))
-
-            a = grid.AA[grid.A0.flatten()] <= int(grid.N1 * grid.N2 * (grid.N3 - 2) - 1)
-
-            data_3[a] = 1 / FZ0 * FZ0 / (FZ0 + FZA)
-            data_3[np.logical_not(a)] = (
+            data_3[mask] = (1 / FZ0 * FZ0 / (FZ0 + FZA))[mask]
+            data_3[~mask] = (
                 1 / FZ0 * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0) + FZ0 / (FZA + FZ0))
-            )
+            )[~mask]
 
-            cols_3[a] = grid.AA[a]
-            cols_3[np.logical_not(a)] = grid.A0.flatten(np.logical_not(a))
+            cols_3[mask] = grid.AA[mask]
+            cols_3[~mask] = grid.A0.flatten()[~mask]
 
             data = np.concatenate((data_1, data_2, data_3))
             rows = np.tile(grid.A0.flatten(), 3)
