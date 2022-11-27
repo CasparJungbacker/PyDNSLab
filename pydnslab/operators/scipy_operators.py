@@ -16,80 +16,15 @@ class ScipyOperators:
         self.Dz = self.differentiate_1(grid, 3)
 
         self.Dxx = self.differentiate_2(
-            grid.N1,
-            grid.N2,
-            grid.N3,
-            grid.FX,
-            grid.FY,
-            grid.FZ,
-            grid.inz,
-            grid.inx,
-            grid.iny,
-            grid.A0,
-            grid.AN,
-            grid.AS,
-            grid.AE,
-            grid.AW,
-            grid.AA,
-            grid.AG,
-            grid.east,
-            grid.west,
-            grid.north,
-            grid.south,
-            grid.air,
-            grid.ground,
+            grid,
             2,
         )
-
         self.Dyy = self.differentiate_2(
-            grid.N1,
-            grid.N2,
-            grid.N3,
-            grid.FX,
-            grid.FY,
-            grid.FZ,
-            grid.inz,
-            grid.inx,
-            grid.iny,
-            grid.A0,
-            grid.AN,
-            grid.AS,
-            grid.AE,
-            grid.AW,
-            grid.AA,
-            grid.AG,
-            grid.east,
-            grid.west,
-            grid.north,
-            grid.south,
-            grid.air,
-            grid.ground,
+            grid,
             1,
         )
-
         self.Dzz = self.differentiate_2(
-            grid.N1,
-            grid.N2,
-            grid.N3,
-            grid.FX,
-            grid.FY,
-            grid.FZ,
-            grid.inz,
-            grid.inx,
-            grid.iny,
-            grid.A0,
-            grid.AN,
-            grid.AS,
-            grid.AE,
-            grid.AW,
-            grid.AA,
-            grid.AG,
-            grid.east,
-            grid.west,
-            grid.north,
-            grid.south,
-            grid.air,
-            grid.ground,
+            grid,
             3,
         )
 
@@ -312,104 +247,93 @@ class ScipyOperators:
 
     @staticmethod
     def differentiate_2(
-        N1: int,
-        N2: int,
-        N3: int,
-        FX: np.ndarray,
-        FY: np.ndarray,
-        FZ: np.ndarray,
-        inz: np.ndarray,
-        inx: np.ndarray,
-        iny: np.ndarray,
-        A0: np.ndarray,
-        AN: np.ndarray,
-        AS: np.ndarray,
-        AE: np.ndarray,
-        AW: np.ndarray,
-        AA: np.ndarray,
-        AG: np.ndarray,
-        east: np.ndarray,
-        west: np.ndarray,
-        north: np.ndarray,
-        south: np.ndarray,
-        air: np.ndarray,
-        ground: np.ndarray,
+        grid: Grid,
         index: int,
     ) -> sps.dok_matrix:
         """Second order derivatives"""
 
-        m = np.zeros(N1 * N2 * (N3 - 2))
-        M = sps.dia_matrix(
-            ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
-            (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
-        ).todok()
+        FY0 = grid.FY[1:-1].flatten()
+        FYN = grid.FY[1:-1, :, grid.north].flatten()
+        FYS = grid.FY[1:-1, :, grid.south].flatten()
 
-        for i in iny:
-            for j in inx:
-                for k in inz - 1:
+        FX0 = grid.FX[1:-1].flatten()
+        FXE = grid.FX[1:-1, grid.east].flatten()
+        FXW = grid.FX[1:-1, grid.west].flatten()
 
-                    if index == 1:
-                        M[A0[i, j, k], A0[i, j, k]] = -2 / (
-                            FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
-                        ) - 2 / (
-                            FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
-                        )
+        FZ0 = grid.FZ[1:-1].flatten()
+        FZA = grid.FZ[grid.air].flatten()
+        FZG = grid.FZ[grid.ground].flatten()
 
-                    elif index == 2:
-                        M[A0[i, j, k], A0[i, j, k]] = -2 / (
-                            FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
-                        ) - 2 / (
-                            FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
-                        )
+        if index == 1:
+            data_1 = -2 / (FY0 * (FY0 + FYN)) - 2 / (FY0 * (FY0 + FYS))
+            data_2 = 2 / (FY0 * (FY0 + FYN))
+            data_3 = 2 / (FY0 * (FY0 + FYS))
 
-                    elif index == 3:
-                        M[A0[i, j, k], A0[i, j, k]] = -2 / (
-                            FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
-                        ) - 2 / (
-                            FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
-                        )
+            rows = np.tile(grid.A0.flatten(), 3)
+            cols = np.concatenate(
+                (
+                    grid.A0.flatten(),
+                    grid.AN[grid.A0.flatten()],
+                    grid.AS[grid.A0.flatten()],
+                )
+            )
+            data = np.concatenate((data_1, data_2, data_3))
 
-                    if index == 1:
-                        M[A0[i, j, k], AN[A0[i, j, k]]] = 2 / (
-                            FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
-                        )
-                        M[A0[i, j, k], AS[A0[i, j, k]]] = 2 / (
-                            FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
-                        )
+        elif index == 2:
+            data_1 = -2 / (FX0 * (FX0 + FXE)) - 2 / (FX0 * (FX0 + FXW))
+            data_2 = 2 / (FX0 * (FX0 + FXE))
+            data_3 = 2 / (FX0 * (FX0 + FXW))
 
-                    elif index == 2:
-                        M[A0[i, j, k], AE[A0[i, j, k]]] = 2 / (
-                            FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
-                        )
-                        M[A0[i, j, k], AS[A0[i, j, k]]] = 2 / (
-                            FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
-                        )
-                    elif index == 3:
-                        if AG[A0[i, j, k]] >= 0:
-                            M[A0[i, j, k], AG[A0[i, j, k]]] = 2 / (
-                                FZ[i + 1, j, k]
-                                * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
-                            )
-                        else:
-                            M[A0[i, j, k], A0[i, j, k]] = -2 / (
-                                FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
-                            ) - 4 / (
-                                FZ[i + 1, j, k]
-                                * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
-                            )
-                        if AA[A0[i, j, k]] <= N1 * N2 * (N3 - 2) - 1:
-                            M[A0[i, j, k], AA[A0[i, j, k]]] = 2 / (
-                                FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
-                            )
-                        else:
-                            M[A0[i, j, k], A0[i, j, k]] = -4 / (
-                                FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
-                            ) - 2 / (
-                                FZ[i + 1, j, k]
-                                * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
-                            )
+            rows = np.tile(grid.A0.flatten(), 3)
+            cols = np.concatenate(
+                (
+                    grid.A0.flatten(),
+                    grid.AE[grid.A0.flatten()],
+                    grid.AW[grid.A0.flatten()],
+                )
+            )
+            data = np.concatenate((data_1, data_2, data_3))
 
-        M = M.tocoo()
+        elif index == 3:
+            data_1 = -2 / (FZ0 * (FZ0 + FZA)) - 2 / (FZ0 * (FZ0 + FZG))
+            data_2 = np.zeros_like(data_1)
+            data_3 = np.zeros_like(data_1)
+            cols_2 = np.zeros_like(data_1)
+            cols_3 = np.zeros_like(data_1)
+
+            mask = grid.AG[grid.A0.flatten()] >= 0
+
+            data_2[mask] = (2 / (FZ0 * (FZ0 + FZG)))[mask]
+            data_2[~mask] = (-2 / ((FZ0 * (FZ0 + FZA))) - 4 / (FZ0 * (FZ0 + FZG)))[
+                ~mask
+            ]
+
+            cols_2[mask] = grid.AG[mask]
+            cols_2[~mask] = grid.A0.flatten()[~mask]
+
+            mask = grid.AA[grid.A0.flatten()] <= int(
+                grid.N1 * grid.N2 * (grid.N3 - 2) - 1
+            )
+
+            data_3[mask] = (2 / (FZ0 * (FZ0 + FZA)))[mask]
+            data_3[~mask] = (-4 / ((FZ0 * (FZ0 + FZA))) - 2 / (FZ0 * (FZ0 + FZG)))[
+                ~mask
+            ]
+
+            cols_3[mask] = grid.AA[mask]
+            cols_3[~mask] = grid.A0.flatten()[~mask]
+
+            data = np.concatenate((data_1, data_2, data_3))
+            rows = np.tile(grid.A0.flatten(), 3)
+            cols = np.concatenate((grid.A0.flatten(), cols_2, cols_3))
+
+        else:
+            raise ValueError(f"Invalid index: {index}")
+
+        N = len(grid.A0.flatten())
+
+        M = sps.coo_matrix((data, (rows, cols)), shape=(N, N))
+        M.eliminate_zeros()
 
         return M
 
