@@ -32,30 +32,7 @@ class ScipyOperators:
         self.Dyp = self.differentiate_1p(grid, 1)
         self.Dzp = self.differentiate_1p(grid, 3)
 
-        self.M = self.poisson_matrix(
-            grid.N1,
-            grid.N2,
-            grid.N3,
-            grid.FX,
-            grid.FY,
-            grid.FZ,
-            grid.inz,
-            grid.inx,
-            grid.iny,
-            grid.A0,
-            grid.AN,
-            grid.AS,
-            grid.AE,
-            grid.AW,
-            grid.AA,
-            grid.AG,
-            grid.east,
-            grid.west,
-            grid.north,
-            grid.south,
-            grid.air,
-            grid.ground,
-        )
+        self.M = self.poisson_matrix(grid)
 
         # Preconditioner
         self.M_inv_approx = self.preconditioner(
@@ -338,144 +315,129 @@ class ScipyOperators:
         return M
 
     @staticmethod
-    def poisson_matrix(
-        N1: int,
-        N2: int,
-        N3: int,
-        FX: np.ndarray,
-        FY: np.ndarray,
-        FZ: np.ndarray,
-        inz: np.ndarray,
-        inx: np.ndarray,
-        iny: np.ndarray,
-        A0: np.ndarray,
-        AN: np.ndarray,
-        AS: np.ndarray,
-        AE: np.ndarray,
-        AW: np.ndarray,
-        AA: np.ndarray,
-        AG: np.ndarray,
-        east: np.ndarray,
-        west: np.ndarray,
-        north: np.ndarray,
-        south: np.ndarray,
-        air: np.ndarray,
-        ground: np.ndarray,
-    ) -> sps.dok_matrix:
+    def poisson_matrix(grid: Grid) -> sps.dok_matrix:
         """Poisson matrix"""
 
-        m = np.zeros(N1 * N2 * (N3 - 2))
-        M = sps.dia_matrix(
-            ([m, m, m, m, m, m, m], [-N1 * (N3 - 2), -N1, -1, 0, 1, N1, N1 * (N3 - 2)]),
-            (N1 * N2 * (N3 - 2), N1 * N2 * (N3 - 2)),
-        ).todok()
+        FY0 = grid.FY[1:-1].flatten()
+        FYN = grid.FY[1:-1, :, grid.north].flatten()
+        FYS = grid.FY[1:-1, :, grid.south].flatten()
 
-        for i in iny:
-            for j in inx:
-                for k in inz - 1:
-                    M[A0[i, j, k], A0[i, j, k]] = (
-                        -2
-                        / (FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]]))
-                        - 2
-                        / (FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]]))
-                        - 2
-                        / (FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k]))
-                        - 2
-                        / (FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k]))
-                        - 2 / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k]))
-                        - 2
-                        / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k]))
-                    )
+        FX0 = grid.FX[1:-1].flatten()
+        FXE = grid.FX[1:-1, grid.east].flatten()
+        FXW = grid.FX[1:-1, grid.west].flatten()
 
-                    M[A0[i, j, k], AN[A0[i, j, k]]] = 2 / (
-                        FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
-                    )
-                    M[A0[i, j, k], AS[A0[i, j, k]]] = 2 / (
-                        FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
-                    )
-                    M[A0[i, j, k], AE[A0[i, j, k]]] = 2 / (
-                        FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
-                    )
-                    M[A0[i, j, k], AW[A0[i, j, k]]] = 2 / (
-                        FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
-                    )
+        FZ0 = grid.FZ[1:-1].flatten()
+        FZA = grid.FZ[grid.air].flatten()
+        FZG = grid.FZ[grid.ground].flatten()
 
-                    if AA[A0[i, j, k]] <= N1 * N2 * (N3 - 2) - 1:
-                        M[A0[i, j, k], AA[A0[i, j, k]]] = 2 / (
-                            FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k])
-                        )
-                    else:
-                        M[A0[i, j, k], A0[i, j, k]] = (
-                            -2
-                            / (
-                                FY[i + 1, j, k]
-                                * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
-                            )
-                            - 2
-                            / (
-                                FY[i + 1, j, k]
-                                * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
-                            )
-                            - 2
-                            / (
-                                FX[i + 1, j, k]
-                                * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
-                            )
-                            - 2
-                            / (
-                                FX[i + 1, j, k]
-                                * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
-                            )
-                            - 2
-                            / (
-                                FZ[i + 1, j, k]
-                                * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
-                            )
-                        )
+        N = len(grid.A0.flatten())
 
-                    if AG[A0[i, j, k]] >= 1:
-                        M[A0[i, j, k], AG[A0[i, j, k]]] = 2 / (
-                            FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k])
-                        )
-                    else:
-                        M[A0[i, j, k], A0[i, j, k]] = (
-                            -2
-                            / (
-                                FY[i + 1, j, k]
-                                * (FY[i + 1, j, k] + FY[i + 1, j, north[k]])
-                            )
-                            - 2
-                            / (
-                                FY[i + 1, j, k]
-                                * (FY[i + 1, j, k] + FY[i + 1, j, south[k]])
-                            )
-                            - 2
-                            / (
-                                FX[i + 1, j, k]
-                                * (FX[i + 1, j, k] + FX[i + 1, east[j], k])
-                            )
-                            - 2
-                            / (
-                                FX[i + 1, j, k]
-                                * (FX[i + 1, j, k] + FX[i + 1, west[j], k])
-                            )
-                            - 2
-                            / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k]))
-                        )
-        i = int(round(N1 / 2) - 1)
-        j = int(round(N2 / 2) - 1)
-        k = 0
-
-        M[A0[i, j, k], A0[i, j, k]] = (
-            -2 / (FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, north[k]]))
-            - 2 / (FY[i + 1, j, k] * (FY[i + 1, j, k] + FY[i + 1, j, south[k]]))
-            - 2 / (FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, east[j], k]))
-            - 2 / (FX[i + 1, j, k] * (FX[i + 1, j, k] + FX[i + 1, west[j], k]))
-            - 2 / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[air[i], j, k]))
-            - 4 / (FZ[i + 1, j, k] * (FZ[i + 1, j, k] + FZ[ground[i], j, k]))
+        # TODO: make this more elegant
+        cols_1 = grid.A0.flatten()
+        data_1 = (
+            -2 / (FY0 * (FY0 + FYN))
+            - 2 / (FY0 * (FY0 + FYS))
+            - 2 / (FX0 * (FX0 + FXE))
+            - 2 / (FX0 * (FX0 + FXW))
+            - 2 / (FZ0 * (FZ0 + FZA))
+            - 2 / (FZ0 * (FZ0 + FZG))
         )
 
-        M = M.tocoo()
+        cols_2 = grid.AN[grid.A0.flatten()]
+        data_2 = 2 / (FY0 * (FY0 + FYN))
+
+        cols_3 = grid.AS[grid.A0.flatten()]
+        data_3 = 2 / (FY0 * (FY0 + FYS))
+
+        cols_4 = grid.AE[grid.A0.flatten()]
+        data_4 = 2 / (FX0 * (FX0 + FXE))
+
+        cols_5 = grid.AW[grid.A0.flatten()]
+        data_5 = 2 / (FX0 * (FX0 + FXW))
+
+        mask = grid.AA[grid.A0.flatten()] <= grid.N1 * grid.N2 * (grid.N3 - 2) - 1
+
+        cols_6 = np.zeros(N)
+        data_6 = np.zeros(N)
+        cols_6[mask] = grid.AA[mask]
+        data_6[mask] = 2 / (FZ0[mask] * (FZ0[mask] + FZA[mask]))
+
+        cols_6[~mask] = grid.A0.flatten()[~mask]
+        data_6[~mask] = (
+            -2 / (FY0[~mask] * (FY0[~mask] + FYN[~mask]))
+            - 2 / (FY0[~mask] * (FY0[~mask] + FYS[~mask]))
+            - 2 / (FX0[~mask] * (FX0[~mask] + FXE[~mask]))
+            - 2 / (FX0[~mask] * (FX0[~mask] + FXW[~mask]))
+            - 2 / (FZ0[~mask] * (FZ0[~mask] + FZG[~mask]))
+        )
+
+        mask = grid.AG[grid.A0.flatten()] >= 1
+
+        cols_7 = np.zeros(N)
+        data_7 = np.zeros(N)
+        cols_7[mask] = grid.AG[mask]
+        data_7[mask] = 2 / (FZ0[mask] * (FZ0[mask] + FZG[mask]))
+        data_7[~mask] = (
+            -2 / (FY0[~mask] * (FY0[~mask] + FYN[~mask]))
+            - 2 / (FY0[~mask] * (FY0[~mask] + FYS[~mask]))
+            - 2 / (FX0[~mask] * (FX0[~mask] + FXE[~mask]))
+            - 2 / (FX0[~mask] * (FX0[~mask] + FXW[~mask]))
+            - 2 / (FZ0[~mask] * (FZ0[~mask] + FZG[~mask]))
+        )
+
+        cols_7[~mask] = grid.A0.flatten()[~mask]
+
+        i = int(round(grid.N1 / 2) - 1)
+        j = int(round(grid.N2 / 2) - 1)
+        k = 0
+
+        cols_8, rows_8 = [grid.A0[i, j, k]], [grid.A0[i, j, k]]
+        data_8 = [
+            (
+                -2
+                / (
+                    grid.FY[i + 1, j, k]
+                    * (grid.FY[i + 1, j, k] + grid.FY[i + 1, j, grid.north[k]])
+                )
+                - 2
+                / (
+                    grid.FY[i + 1, j, k]
+                    * (grid.FY[i + 1, j, k] + grid.FY[i + 1, j, grid.south[k]])
+                )
+                - 2
+                / (
+                    grid.FX[i + 1, j, k]
+                    * (grid.FX[i + 1, j, k] + grid.FX[i + 1, grid.east[j], k])
+                )
+                - 2
+                / (
+                    grid.FX[i + 1, j, k]
+                    * (grid.FX[i + 1, j, k] + grid.FX[i + 1, grid.west[j], k])
+                )
+                - 2
+                / (
+                    grid.FZ[i + 1, j, k]
+                    * (grid.FZ[i + 1, j, k] + grid.FZ[grid.air[i], j, k])
+                )
+                - 4
+                / (
+                    grid.FZ[i + 1, j, k]
+                    * (grid.FZ[i + 1, j, k] + grid.FZ[grid.ground[i], j, k])
+                )
+            )
+        ]
+
+        data = np.concatenate(
+            (data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8)
+        )
+        rows = np.concatenate((np.tile(grid.A0.flatten(), 7), rows_8))
+        cols = np.concatenate(
+            (cols_1, cols_2, cols_3, cols_4, cols_5, cols_6, cols_7, cols_8)
+        )
+
+        M = sps.coo_matrix((data, (rows, cols)), shape=(N, N))
+
+        M.eliminate_zeros()
 
         return M
 
