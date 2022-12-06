@@ -94,6 +94,8 @@ class ScipyOperators:
             data_3 = np.zeros_like(data_1)
             cols_2 = np.zeros_like(data_1)
             cols_3 = np.zeros_like(data_1)
+            rows_2 = np.zeros_like(data_1)
+            rows_3 = np.zeros_like(data_1)
 
             mask = grid.AG[grid.A0.flatten()] >= 0
 
@@ -102,8 +104,11 @@ class ScipyOperators:
                 1 / FZ0 * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0) + FZ0 / (FZG + FZ0))
             )[~mask]
 
-            cols_2[mask] = grid.AG[mask]
+            cols_2[mask] = grid.AG[grid.A0.flatten()[mask]]
             cols_2[~mask] = grid.A0.flatten()[~mask]
+
+            rows_2[mask] = grid.A0.flatten()[mask]
+            rows_2[~mask] = grid.A0.flatten()[~mask]
 
             mask = grid.AA[grid.A0.flatten()] <= int(
                 grid.N1 * grid.N2 * (grid.N3 - 2) - 1
@@ -114,11 +119,14 @@ class ScipyOperators:
                 1 / FZ0 * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0) - FZ0 / (FZA + FZ0))
             )[~mask]
 
-            cols_3[mask] = grid.AA[mask]
+            cols_3[mask] = grid.AA[grid.A0.flatten()[mask]]
             cols_3[~mask] = grid.A0.flatten()[~mask]
 
+            rows_3[mask] = grid.A0.flatten()[mask]
+            rows_3[~mask] = grid.A0.flatten()[~mask]
+
             data = np.concatenate((data_1, data_2, data_3))
-            rows = np.tile(grid.A0.flatten(), 3)
+            rows = np.concatenate((grid.A0.flatten(), rows_2, rows_3))
             cols = np.concatenate((grid.A0.flatten(), cols_2, cols_3))
 
         else:
@@ -126,7 +134,7 @@ class ScipyOperators:
 
         N = len(grid.A0.flatten())
 
-        M = sps.coo_matrix((data, (rows, cols)), shape=(N, N))
+        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N))
         M.eliminate_zeros()
 
         return M
@@ -188,9 +196,9 @@ class ScipyOperators:
 
             mask = grid.AG[grid.A0.flatten()] >= 0
 
-            data_2[mask] = (-1 / FZ0 * FZ0 / (FZ0 + FZG))[mask]
+            data_2[mask] = (-1 / FZ0 * (FZ0 / (FZ0 + FZG)))[mask]
             data_2[~mask] = (
-                1 / FZ0 * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0) - FZ0 / (FZG + FZ0))
+                1 / FZ0 * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0) + FZ0 / (FZG + FZ0))
             )[~mask]
 
             cols_2[mask] = grid.AG[mask]
@@ -202,7 +210,7 @@ class ScipyOperators:
 
             data_3[mask] = (1 / FZ0 * FZ0 / (FZ0 + FZA))[mask]
             data_3[~mask] = (
-                1 / FZ0 * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0) + FZ0 / (FZA + FZ0))
+                1 / FZ0 * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0) - FZ0 / (FZA + FZ0))
             )[~mask]
 
             cols_3[mask] = grid.AA[mask]
