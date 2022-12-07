@@ -42,9 +42,20 @@ def test_differentiate_1p(grid: Grid, ind: int, mat: str) -> None:
     np.testing.assert_almost_equal(data, v)
 
 
-def test_differentiate_2():
-    pass
+@pytest.mark.parametrize("ind, mat", [(2, "Dxx.txt"), (1, "Dyy.txt"), (3, "Dzz.txt")])
+def test_differentiate_2(grid: Grid, ind: int, mat: str) -> None:
+    rows, cols, data = load_operators(mat)
+    M = ScipyOperators.differentiate_2(grid, ind)
+    i, j, v = sp.sparse.find(M)
+    np.testing.assert_array_equal(rows, i)
+    np.testing.assert_array_equal(cols, j)
+    np.testing.assert_almost_equal(data, v)
 
 
-def test_poisson():
-    pass
+def test_poisson(grid: Grid):
+    rows, cols, data = load_operators("M.txt")
+    M = ScipyOperators.poisson_matrix(grid)
+    i, j, v = sp.sparse.find(M)
+    np.testing.assert_array_equal(rows, i)
+    np.testing.assert_array_equal(cols, j)
+    np.testing.assert_almost_equal(data, v)

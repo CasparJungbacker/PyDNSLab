@@ -267,27 +267,27 @@ class ScipyOperators:
 
         elif index == 3:
             data_1 = -2 / (FZ0 * (FZ0 + FZA)) - 2 / (FZ0 * (FZ0 + FZG))
-            data_2 = np.zeros_like(data_1)
-            data_3 = np.zeros_like(data_1)
 
             mask = grid.AG[grid.A0.flatten()] >= 0
 
-            data_2[mask] = (2 / (FZ0 * (FZ0 + FZG)))[mask]
+            data_2 = (2 / (FZ0 * (FZ0 + FZG)))[mask]
             data_1[~mask] = (-2 / (FZ0 * (FZ0 + FZA)) - 4 / (FZ0 * (FZ0 + FZG)))[~mask]
 
             cols_2 = grid.AG[mask]
+            rows_2 = grid.A0.flatten()[mask]
 
             mask = grid.AA[grid.A0.flatten()] <= int(
                 grid.N1 * grid.N2 * (grid.N3 - 2) - 1
             )
 
-            data_3[mask] = (2 / (FZ0 * (FZ0 + FZA)))[mask]
+            data_3 = (2 / (FZ0 * (FZ0 + FZA)))[mask]
             data_1[~mask] = (-4 / (FZ0 * (FZ0 + FZA)) - 2 / (FZ0 * (FZ0 + FZG)))[~mask]
 
             cols_3 = grid.AA[mask]
+            rows_3 = grid.A0.flatten()[mask]
 
             data = np.concatenate((data_1, data_2, data_3))
-            rows = np.tile(grid.A0.flatten(), 3)
+            rows = np.concatenate((grid.A0.flatten(), rows_2, rows_3))
             cols = np.concatenate((grid.A0.flatten(), cols_2, cols_3))
 
         else:
@@ -343,85 +343,74 @@ class ScipyOperators:
 
         mask = grid.AA[grid.A0.flatten()] <= grid.N1 * grid.N2 * (grid.N3 - 2) - 1
 
-        cols_6 = np.zeros(N)
-        data_6 = np.zeros(N)
-        cols_6[mask] = grid.AA[mask]
-        data_6[mask] = 2 / (FZ0[mask] * (FZ0[mask] + FZA[mask]))
+        cols_6 = grid.AA[mask]
+        rows_6 = grid.A0.flatten()[mask]
+        data_6 = 2 / (FZ0 * (FZ0 + FZA))[mask]
 
-        cols_6[~mask] = grid.A0.flatten()[~mask]
-        data_6[~mask] = (
-            -2 / (FY0[~mask] * (FY0[~mask] + FYN[~mask]))
-            - 2 / (FY0[~mask] * (FY0[~mask] + FYS[~mask]))
-            - 2 / (FX0[~mask] * (FX0[~mask] + FXE[~mask]))
-            - 2 / (FX0[~mask] * (FX0[~mask] + FXW[~mask]))
-            - 2 / (FZ0[~mask] * (FZ0[~mask] + FZG[~mask]))
-        )
+        data_1[~mask] = (
+            -2 / (FY0 * (FY0 + FYN))
+            - 2 / (FY0 * (FY0 + FYS))
+            - 2 / (FX0 * (FX0 + FXE))
+            - 2 / (FX0 * (FX0 + FXW))
+            - 2 / (FZ0 * (FZ0 + FZG))
+        )[~mask]
 
-        mask = grid.AG[grid.A0.flatten()] >= 1
+        mask = grid.AG[grid.A0.flatten()] >= 0
 
-        cols_7 = np.zeros(N)
-        data_7 = np.zeros(N)
-        cols_7[mask] = grid.AG[mask]
-        data_7[mask] = 2 / (FZ0[mask] * (FZ0[mask] + FZG[mask]))
-        data_7[~mask] = (
-            -2 / (FY0[~mask] * (FY0[~mask] + FYN[~mask]))
-            - 2 / (FY0[~mask] * (FY0[~mask] + FYS[~mask]))
-            - 2 / (FX0[~mask] * (FX0[~mask] + FXE[~mask]))
-            - 2 / (FX0[~mask] * (FX0[~mask] + FXW[~mask]))
-            - 2 / (FZ0[~mask] * (FZ0[~mask] + FZG[~mask]))
-        )
+        cols_7 = grid.AG[mask]
+        rows_7 = grid.A0.flatten()[mask]
+        data_7 = 2 / (FZ0 * (FZ0 + FZG))[mask]
 
-        cols_7[~mask] = grid.A0.flatten()[~mask]
+        data_1[~mask] = (
+            -2 / (FY0 * (FY0 + FYN))
+            - 2 / (FY0 * (FY0 + FYS))
+            - 2 / (FX0 * (FX0 + FXE))
+            - 2 / (FX0 * (FX0 + FXW))
+            - 2 / (FZ0 * (FZ0 + FZA))
+        )[~mask]
 
-        i = int(round(grid.N1 / 2) - 1)
-        j = int(round(grid.N2 / 2) - 1)
-        k = 0
+        i = 0
+        j = int(grid.N2 / 2 - 1)
+        k = int(round(grid.N1 / 2 - 1))
 
-        cols_8, rows_8 = [grid.A0[i, j, k]], [grid.A0[i, j, k]]
-        data_8 = [
-            (
-                -2
-                / (
-                    grid.FY[i + 1, j, k]
-                    * (grid.FY[i + 1, j, k] + grid.FY[i + 1, j, grid.north[k]])
-                )
-                - 2
-                / (
-                    grid.FY[i + 1, j, k]
-                    * (grid.FY[i + 1, j, k] + grid.FY[i + 1, j, grid.south[k]])
-                )
-                - 2
-                / (
-                    grid.FX[i + 1, j, k]
-                    * (grid.FX[i + 1, j, k] + grid.FX[i + 1, grid.east[j], k])
-                )
-                - 2
-                / (
-                    grid.FX[i + 1, j, k]
-                    * (grid.FX[i + 1, j, k] + grid.FX[i + 1, grid.west[j], k])
-                )
-                - 2
-                / (
-                    grid.FZ[i + 1, j, k]
-                    * (grid.FZ[i + 1, j, k] + grid.FZ[grid.air[i], j, k])
-                )
-                - 4
-                / (
-                    grid.FZ[i + 1, j, k]
-                    * (grid.FZ[i + 1, j, k] + grid.FZ[grid.ground[i], j, k])
-                )
+        data_1[grid.A0[i, j, k]] = (
+            -2
+            / (
+                grid.FY[i + 1, j, k]
+                * (grid.FY[i + 1, j, k] + grid.FY[i + 1, j, grid.north[k]])
             )
-        ]
-
-        data = np.concatenate(
-            (data_1, data_2, data_3, data_4, data_5, data_6, data_7, data_8)
+            - 2
+            / (
+                grid.FY[i + 1, j, k]
+                * (grid.FY[i + 1, j, k] + grid.FY[i + 1, j, grid.south[k]])
+            )
+            - 2
+            / (
+                grid.FX[i + 1, j, k]
+                * (grid.FX[i + 1, j, k] + grid.FX[i + 1, grid.east[j], k])
+            )
+            - 2
+            / (
+                grid.FX[i + 1, j, k]
+                * (grid.FX[i + 1, j, k] + grid.FX[i + 1, grid.west[j], k])
+            )
+            - 2
+            / (
+                grid.FZ[i + 1, j, k]
+                * (grid.FZ[i + 1, j, k] + grid.FZ[grid.air[i], j, k])
+            )
+            - 4
+            / (
+                grid.FZ[i + 1, j, k]
+                * (grid.FZ[i + 1, j, k] + grid.FZ[grid.ground[i], j, k])
+            )
         )
-        rows = np.concatenate((np.tile(grid.A0.flatten(), 7), rows_8))
-        cols = np.concatenate(
-            (cols_1, cols_2, cols_3, cols_4, cols_5, cols_6, cols_7, cols_8)
-        )
 
-        M = sps.coo_matrix((data, (rows, cols)), shape=(N, N))
+        data = np.concatenate((data_1, data_2, data_3, data_4, data_5, data_6, data_7))
+        rows = np.concatenate((np.tile(grid.A0.flatten(), 5), rows_6, rows_7))
+        cols = np.concatenate((cols_1, cols_2, cols_3, cols_4, cols_5, cols_6, cols_7))
+
+        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N))
 
         M.eliminate_zeros()
 
