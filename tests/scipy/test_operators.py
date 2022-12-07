@@ -29,7 +29,7 @@ def test_differentiate_1(grid: Grid, ind: int, mat: str) -> None:
     i, j, v = sp.sparse.find(M)
     np.testing.assert_array_equal(rows, i)
     np.testing.assert_array_equal(cols, j)
-    np.testing.assert_array_equal(data, v)
+    np.testing.assert_almost_equal(data, v)
 
 
 def test_differentiate_1p():
