@@ -211,7 +211,7 @@ class ScipyOperators:
 
         N = len(grid.A0.flatten())
 
-        M = sps.coo_matrix((data, (rows, cols)), shape=(N, N))
+        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N))
         M.eliminate_zeros()
 
         return M
@@ -295,7 +295,7 @@ class ScipyOperators:
 
         N = len(grid.A0.flatten())
 
-        M = sps.coo_matrix((data, (rows, cols)), shape=(N, N))
+        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N))
         M.eliminate_zeros()
 
         return M
