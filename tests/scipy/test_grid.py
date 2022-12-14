@@ -12,14 +12,6 @@ FIELDS_PATH = os.path.join(os.path.dirname(__file__), "data")
 DEFAULT_CASE = case_setup()
 
 
-@pytest.fixture
-def grid() -> Grid:
-    res = DEFAULT_CASE["res"]
-    l_scale = DEFAULT_CASE["l_scale"]
-    w_scale = DEFAULT_CASE["w_scale"]
-    return Grid(res, l_scale, w_scale)
-
-
 def test_num_gridpoints(grid: Grid) -> None:
     assert grid.N1 == 32
     assert grid.N2 == 32

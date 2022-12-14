@@ -14,14 +14,6 @@ OPERATORS_PATH = os.path.join(os.path.dirname(__file__), "operators")
 DEFAULT_CASE = case_setup()
 
 
-@pytest.fixture
-def grid() -> Grid:
-    res = DEFAULT_CASE["res"]
-    l_scale = DEFAULT_CASE["l_scale"]
-    w_scale = DEFAULT_CASE["w_scale"]
-    return Grid(res, l_scale, w_scale)
-
-
 @pytest.mark.parametrize("ind, mat", [(2, "Dx.txt"), (1, "Dy.txt"), (3, "Dz.txt")])
 def test_differentiate_1(grid: Grid, ind: int, mat: str) -> None:
     rows, cols, data = load_operators(mat)
