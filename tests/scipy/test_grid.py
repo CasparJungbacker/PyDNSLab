@@ -5,11 +5,8 @@ import numpy as np
 from utils import load_mat_file
 
 from pydnslab.grid import Grid
-from pydnslab.case_setup import case_setup
 
 FIELDS_PATH = os.path.join(os.path.dirname(__file__), "data")
-
-DEFAULT_CASE = case_setup()
 
 
 def test_num_gridpoints(grid: Grid) -> None:

@@ -7,11 +7,8 @@ from utils import load_operators
 
 from pydnslab.operators.scipy_operators import ScipyOperators
 from pydnslab.grid import Grid
-from pydnslab.case_setup import case_setup
 
 OPERATORS_PATH = os.path.join(os.path.dirname(__file__), "operators")
-
-DEFAULT_CASE = case_setup()
 
 
 @pytest.mark.parametrize("ind, mat", [(2, "Dx.txt"), (1, "Dy.txt"), (3, "Dz.txt")])
