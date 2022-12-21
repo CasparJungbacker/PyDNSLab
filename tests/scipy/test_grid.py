@@ -5,19 +5,8 @@ import numpy as np
 from utils import load_mat_file
 
 from pydnslab.grid import Grid
-from pydnslab.case_setup import case_setup
 
 FIELDS_PATH = os.path.join(os.path.dirname(__file__), "data")
-
-DEFAULT_CASE = case_setup()
-
-
-@pytest.fixture
-def grid() -> Grid:
-    res = DEFAULT_CASE["res"]
-    l_scale = DEFAULT_CASE["l_scale"]
-    w_scale = DEFAULT_CASE["w_scale"]
-    return Grid(res, l_scale, w_scale)
 
 
 def test_num_gridpoints(grid: Grid) -> None:

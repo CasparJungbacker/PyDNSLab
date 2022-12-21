@@ -13,7 +13,7 @@ def case_setup(
     fixed_dt: bool = False,
     setdt: float = 4.501e-3,
     co_target: float = 0.5,
-    interval: int = 1000,
+    interval: int = 100,
     timing: bool = True,
     statinit: int = 1,
     sbicg: bool = True,

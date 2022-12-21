@@ -83,4 +83,14 @@ class Model:
 
             self.fields.update(du, dv, dw, pnew)
 
-            self.statistics.update(self.grid, self.fields)
+            self.statistics.update(self.grid, self.fields, i)
+
+        self.statistics.plot()
+
+
+if __name__ == "__main__":
+    from pydnslab.case_setup import case_setup
+
+    case = case_setup()
+    model = Model(case)
+    model.run()
