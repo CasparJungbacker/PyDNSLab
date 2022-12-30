@@ -5,6 +5,8 @@ generate differential operators,
 import numpy as np
 import matplotlib.pyplot as plt
 
+import pydnslab.config as config
+
 from pydnslab import butcher_tableau
 from pydnslab.grid import Grid
 from pydnslab.fields.get_fields import get_fields
@@ -20,9 +22,7 @@ class Model:
     def __init__(self, case: dict):
         self.settings: dict = case
 
-        self.grid: Grid = Grid(
-            self.settings["res"], self.settings["l_scale"], self.settings["w_scale"]
-        )
+        self.grid: Grid = Grid()
 
         self.operators: Operators = get_operators(self.grid, self.settings["engine"])
 
@@ -52,6 +52,7 @@ class Model:
 
         # Main time loop
         for i in range(self.settings["nsteps"]):
+            print(f"step: {i}")
             if self.settings["fixed_dt"]:
                 dt = self.settings["dt"]
             else:
@@ -85,12 +86,14 @@ class Model:
 
             self.statistics.update(self.grid, self.fields, i)
 
-        self.statistics.plot()
+        # self.statistics.plot()
 
 
 if __name__ == "__main__":
     from pydnslab.case_setup import case_setup
 
-    case = case_setup()
+    case = case_setup(
+        l_scale=0.5, w_scale=0.5, engine="cupy", fixed_dt=True, nsteps=1000
+    )
     model = Model(case)
     model.run()

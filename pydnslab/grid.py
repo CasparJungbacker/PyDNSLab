@@ -1,19 +1,21 @@
 import numpy as np
 
+import pydnslab.config as config
+
 __all__ = ["Grid"]
 
 
 class Grid:
-    def __init__(self, res: int, l_scale: float, w_scale: float) -> None:
-        self.N1: int = int(2 * res * w_scale)
-        self.N2: int = int(2 * res * l_scale)
-        self.N3: int = res + 2
+    def __init__(self) -> None:
+        self.N1: int = int(2 * config.res * config.w_scale)
+        self.N2: int = int(2 * config.res * config.l_scale)
+        self.N3: int = config.res + 2
 
         # Helper variable for array construction
         self.griddim: tuple = (self.N3 - 2, self.N2, self.N1)
 
-        self.length: float = 4 * np.pi * l_scale
-        self.width: float = 2 * np.pi * w_scale
+        self.length: float = 4 * np.pi * config.l_scale
+        self.width: float = 2 * np.pi * config.w_scale
         self.height: float = 2
 
         self.dx: float = self.length / self.N2
