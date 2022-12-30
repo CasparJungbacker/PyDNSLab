@@ -23,8 +23,7 @@ class Model:
         self.settings: dict = case
 
         self.grid: Grid = Grid()
-
-        self.operators: Operators = get_operators(self.grid, self.settings["engine"])
+        self.operators: Operators = get_operators(self.grid)
 
         self.fields: Fields = get_fields(
             self.grid.griddim,
