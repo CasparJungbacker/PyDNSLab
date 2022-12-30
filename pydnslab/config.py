@@ -1,5 +1,6 @@
 w_scale: float = 0.5
 l_scale: float = 0.5
+res: float = 32
 re_tau: float = 180
 runmode: int = 0
 tim: int = 4
