@@ -24,17 +24,8 @@ class Model:
 
         self.grid: Grid = Grid()
         self.operators: Operators = get_operators(self.grid)
-
-        self.fields: Fields = get_fields(
-            self.grid.griddim,
-            self.settings["runmode"],
-            self.settings["u_nom"],
-            self.settings["u_f"],
-            self.settings["engine"],
-        )
-
-        self.solver: Solver = get_solver(self.settings["engine"])
-
+        self.fields: Fields = get_fields(self.grid)
+        self.solver: Solver = get_solver()
         self.statistics: Statistics = Statistics(self.grid, self.settings)
 
         s, a, b, c = butcher_tableau(self.settings["tim"])

@@ -1,26 +1,32 @@
 import cupy as cp
 
+import pydnslab.config as config
+
 from pydnslab.fields.basefields import Fields
+from pydnslab.grid import Grid
 
 __all__ = ["CupyFields"]
 
 
 class CupyFields(Fields):
-    def __init__(self, dim: tuple, runmode: int, u_nom: float, u_f: float) -> None:
+    def __init__(self, grid: Grid) -> None:
+        dim = grid.griddim
+
         self.U = cp.zeros(dim)
         self.V = cp.zeros(dim)
         self.W = cp.zeros(dim)
 
-        if runmode == 0:
+        if config.runmode == 0:
+            u_nom = (config.re_tau * 17.5 * config.nu) / (config.heigth / 2)
             self.U[:, :, :] = u_nom
-        elif runmode == 1:
-            uf1 = u_f * (cp.random.random_sample(dim) - 0.5)
-            uf2 = u_f * (cp.random.random_sample(dim) - 0.5)
-            uf3 = u_f * (cp.random.random_sample(dim) - 0.5)
+        elif config.runmode == 1:
+            uf1 = config.u_f * (cp.random.random_sample(dim) - 0.5)
+            uf2 = config.u_f * (cp.random.random_sample(dim) - 0.5)
+            uf3 = config.u_f * (cp.random.random_sample(dim) - 0.5)
             self.U = self.U + uf1 * cp.amax(uf1)
             self.V = self.V + uf2 * cp.amax(uf2)
             self.W = self.W + uf3 * cp.amax(uf3)
-        elif runmode == 2:
+        elif config.runmode == 2:
             raise NotImplementedError
 
         self.u = self.U.flatten()
