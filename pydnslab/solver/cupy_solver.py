@@ -2,6 +2,8 @@ import cupy as cp
 import cupyx.scipy.sparse.linalg as spsl
 import numpy as np
 
+import pydnslab.config as config
+
 from pydnslab.solver.basesolver import Solver
 from pydnslab.fields.cupy_fields import CupyFields
 from pydnslab.grid import Grid
@@ -21,7 +23,9 @@ class CupySolver(Solver):
             + operators.Dz.dot(fields.w)
         )
 
-        p = spsl.spsolve(-operators.M, div)
+        p, _ = spsl.cg(
+            -operators.M, div, x0=fields.pold, tol=1e-3, M=operators.M_inv_approx
+        )
 
         pnew = p
 
@@ -32,9 +36,7 @@ class CupySolver(Solver):
         return pnew, du, dv, dw
 
     @staticmethod
-    def adjust_timestep(
-        fields: CupyFields, grid: Grid, dt: float, co_target: float
-    ) -> float:
+    def adjust_timestep(fields: CupyFields, grid: Grid, dt: float) -> float:
         # TODO: Maybe better to prevent transfer from device to host
         cox = fields.U.get() * dt / grid.FX[1 : grid.N3 - 1]
         coy = fields.V.get() * dt / grid.FY[1 : grid.N3 - 1]
@@ -43,12 +45,12 @@ class CupySolver(Solver):
         co = cox + coy + coz
         comax = np.amax(co)
 
-        dt = dt / (comax / co_target)
+        dt = dt / (comax / config.co_target)
 
         return dt
 
+    @staticmethod
     def timestep(
-        self,
         fields: CupyFields,
         operators: CupyOperators,
         grid: Grid,
@@ -58,10 +60,7 @@ class CupySolver(Solver):
         c: np.ndarray,
         dt: float,
         nu: float,
-        gx: float,
-        gy: float,
-        gz: float,
-    ) -> tuple[cp.ndarray, ...]:
+    ) -> tuple[cp.ndarray]:
 
         uold = cp.copy(fields.u)
         vold = cp.copy(fields.v)
@@ -88,7 +87,7 @@ class CupySolver(Solver):
 
                 fields.update(du * dt, dv * dt, dw * dt)
 
-                pnew, du, dv, dw = self.projection(fields, operators)
+                pnew, du, dv, dw = CupySolver.projection(fields, operators)
                 fields.update(du, dv, dw, pnew)
 
             # Convection term
@@ -136,9 +135,11 @@ class CupySolver(Solver):
                 + operators.Dzz.dot(fields.w)
             )
 
+            gx = 2 * (2 * config.re_tau * config.nu) ** 2 / (config.heigth**3)
+
             uk[:, i] = -conv_x + diff_x + gx
-            vk[:, i] = -conv_y + diff_y + gy
-            wk[:, i] = -conv_z + diff_z + gz
+            vk[:, i] = -conv_y + diff_y + config.gy
+            wk[:, i] = -conv_z + diff_z + config.gz
 
             uc += dt * b[i] * uk[:, i]
             vc += dt * b[i] * vk[:, i]

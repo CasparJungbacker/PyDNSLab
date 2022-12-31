@@ -1,6 +1,8 @@
 import numpy as np
 import scipy.sparse.linalg as spsl
 
+import pydnslab.config as config
+
 from pydnslab.solver.basesolver import Solver
 from pydnslab.fields.basefields import Fields
 from pydnslab.grid import Grid
@@ -19,7 +21,7 @@ class ScipySolver(Solver):
         )
 
         # TODO: throw error on non-zero error code
-        p, exit_code = spsl.bicgstab(
+        p, exit_code = spsl.cg(
             -operators.M, div, x0=fields.pold, tol=1e-3, M=operators.M_inv_approx
         )
 
@@ -35,9 +37,7 @@ class ScipySolver(Solver):
         return pnew, du, dv, dz
 
     @staticmethod
-    def adjust_timestep(
-        fields: Fields, grid: Grid, dt: float, co_target: float
-    ) -> float:
+    def adjust_timestep(fields: Fields, grid: Grid, dt: float) -> float:
         cox = fields.U * dt / grid.FX[1 : grid.N3 - 1]
         coy = fields.V * dt / grid.FY[1 : grid.N3 - 1]
         coz = fields.W * dt / grid.FZ[1 : grid.N3 - 1]
@@ -45,12 +45,12 @@ class ScipySolver(Solver):
         co = cox + coy + coz
         comax = np.amax(co)
 
-        dt = dt / (comax / co_target)
+        dt = dt / (comax / config.co_target)
 
         return dt
 
+    @staticmethod
     def timestep(
-        self,
         fields: Fields,
         operators: ScipyOperators,
         grid: Grid,
@@ -60,9 +60,6 @@ class ScipySolver(Solver):
         c: np.ndarray,
         dt: float,
         nu: float,
-        gx: float,
-        gy: float,
-        gz: float,
     ) -> tuple[np.ndarray, ...]:
 
         uold = np.copy(fields.u)
@@ -90,7 +87,7 @@ class ScipySolver(Solver):
 
                 fields.update(du * dt, dv * dt, dw * dt)
 
-                pnew, du, dv, dw = self.projection(fields, operators)
+                pnew, du, dv, dw = ScipySolver.projection(fields, operators)
                 fields.update(du, dv, dw, pnew)
 
             # Convection term
@@ -138,9 +135,11 @@ class ScipySolver(Solver):
                 + operators.Dzz.dot(fields.w)
             )
 
+            gx = 2 * (2 * config.re_tau * config.nu) ** 2 / (config.heigth**3)
+
             uk[:, i] = -conv_x + diff_x + gx
-            vk[:, i] = -conv_y + diff_y + gy
-            wk[:, i] = -conv_z + diff_z + gz
+            vk[:, i] = -conv_y + diff_y + config.gy
+            wk[:, i] = -conv_z + diff_z + config.gz
 
             uc += dt * b[i] * uk[:, i]
             vc += dt * b[i] * vk[:, i]
