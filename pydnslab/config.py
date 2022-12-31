@@ -14,3 +14,6 @@ co_target: float = 0.5
 interval: int = 100
 stat_interval: bool = 100
 backend: str = "cupy"
+
+gy: float = 0
+gz: float = 0
