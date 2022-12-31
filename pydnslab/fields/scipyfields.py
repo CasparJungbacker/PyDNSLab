@@ -1,27 +1,33 @@
 import numpy as np
 
+import pydnslab.config as config
+
 from pydnslab.fields.basefields import Fields
+from pydnslab.grid import Grid
 
 __all__ = ["ScipyFields"]
 
 
 class ScipyFields(Fields):
-    def __init__(self, dim: tuple, runmode: int, u_nom: float, u_f: float) -> None:
+    def __init__(self, grid: Grid) -> None:
+        dim = grid.griddim
+
         # 3D velocity arrays
         self.U: np.ndarray = np.zeros(dim)
         self.V: np.ndarray = np.zeros(dim)
         self.W: np.ndarray = np.zeros(dim)
 
-        if runmode == 0:
+        if config.runmode == 0:
+            u_nom = (config.re_tau * 17.5 * config.nu) / (config.heigth / 2)
             self.U[:, :, :] = u_nom
-        elif runmode == 1:
+        elif config.runmode == 1:
             UF1 = u_f * (np.random.random_sample(dim) - 0.5)
             UF2 = u_f * (np.random.random_sample(dim) - 0.5)
             UF3 = u_f * (np.random.random_sample(dim) - 0.5)
             self.U = self.U + UF1 * np.amax(UF1)
             self.V = self.V + UF2 * np.amax(UF2)
             self.W = self.W + UF3 * np.amax(UF3)
-        elif runmode == 2:
+        elif config.runmode == 2:
             raise NotImplementedError
 
         # 1D velocity arrays

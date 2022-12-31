@@ -1,14 +1,22 @@
-import numpy as np
 import matplotlib.pyplot as plt
+
+import pydnslab.config as config
 
 from pydnslab.grid import Grid
 from pydnslab.fields.basefields import Fields
+
+if config.backend == "scipy":
+    import numpy as np
+elif config.backend == "cupy":
+    import cupy as np
 
 __all__ = ["Statistics"]
 
 
 class Statistics:
-    def __init__(self, grid: Grid, case: dict) -> None:
+    import numpy as np
+
+    def __init__(self, grid: Grid) -> None:
         self._z1 = np.arange(grid.N3 / 2 - 1, dtype=np.int32)
         self._z2 = np.arange(grid.N3 / 2 - 1, grid.N3 - 2, dtype=np.int32)
         self._y1 = np.arange(grid.N1)
@@ -17,12 +25,12 @@ class Statistics:
         self._x2 = np.arange(grid.N2)
 
         # From settings
-        self.nu = case["nu"]
-        self.interval = case["interval"]
+        self.nu = config.nu
+        self.interval = config.stat_interval
 
         # List of steps at which statistics are calculated
         samples = np.arange(
-            self.interval, case["nsteps"] + self.interval, self.interval, dtype=int
+            self.interval, config.nsteps + self.interval, self.interval, dtype=int
         )
 
         stat_dim = (len(samples), len(self._z1))
@@ -106,9 +114,11 @@ class Statistics:
         wplu2 = np.flip(wplu2, axis=0)
         wplu2_mean = wplu2.mean(axis=(1, 2))
 
-        yplu1_mean = grid.z[1 : int(grid.N3 / 2)] / self.nu * ut_mean
+        yplu1_mean = np.array(grid.z[1 : int(grid.N3 / 2)]) / self.nu * ut_mean
 
-        yplu2 = (grid.height - grid.z[int(grid.N3 / 2) : -1]) / self.nu * ut_mean
+        yplu2 = (
+            (grid.height - np.array(grid.z[int(grid.N3 / 2) : -1])) / self.nu * ut_mean
+        )
         yplu2_mean = np.flip(yplu2, axis=0)
 
         uplumean = 0.5 * (uplu1_mean + uplu2_mean)
