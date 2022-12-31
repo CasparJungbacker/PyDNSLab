@@ -67,7 +67,7 @@ class Statistics:
 
     def update(self, grid: Grid, fields: Fields, i: int) -> None:
 
-        if i % self.interval == 0 and i > 0:
+        if (i + 1) % self.interval == 0 and i > 0:
             self.update_fluctuations(grid, fields)
             self.row += 1
 
@@ -238,26 +238,27 @@ class Statistics:
         return fluc
 
     def _plot_fluctiations(self) -> None:
+
         fig, ax = plt.subplots(2, 2)
         ax = ax.flatten()
 
-        ax[0].semilogx(self.yyplumean[-2], self.uuplumean[-2], label="Present")
+        ax[0].semilogx(self.yyplumean[-1], self.uuplumean[-1], label="Present")
         ax[0].set_xlabel("$y^+$")
         ax[0].set_ylabel("$U^+$")
         ax[0].grid()
         ax[0].legend()
         ax[0].set_aspect("auto")
 
-        ax[1].plot(self.yyplumean[-2], self.uplurms[-2], label="$u^+$")
-        ax[1].plot(self.yyplumean[-2], self.vplurms[-2], label="$v^+$")
-        ax[1].plot(self.yyplumean[-2], self.wplurms[-2], label="$w^+$")
+        ax[1].plot(self.yyplumean[-1], self.uplurms[-1], label="$u^+$")
+        ax[1].plot(self.yyplumean[-1], self.vplurms[-1], label="$v^+$")
+        ax[1].plot(self.yyplumean[-1], self.wplurms[-1], label="$w^+$")
         ax[1].set_xlabel("$y^+$")
         ax[1].set_ylabel("RMS")
         ax[1].grid()
         ax[1].legend()
         ax[1].set_aspect("auto")
 
-        ax[2].plot(self.yyplumean[-2], self.uupluvvplumean[-2], label="$u^+v^+$")
+        ax[2].plot(self.yyplumean[-1], self.uupluvvplumean[-1], label="$u^+v^+$")
         ax[2].set_xlabel("$y^+$")
         ax[2].set_ylabel("Mean")
         ax[2].grid()
