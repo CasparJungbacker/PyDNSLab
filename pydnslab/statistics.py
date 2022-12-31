@@ -26,7 +26,7 @@ class Statistics:
 
         # From settings
         self.nu = config.nu
-        self.interval = config.statint
+        self.interval = config.stat_interval
 
         # List of steps at which statistics are calculated
         samples = np.arange(
