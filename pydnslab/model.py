@@ -23,12 +23,12 @@ class Model:
         self.settings: dict = case
 
         self.grid: Grid = Grid()
+        self.solver: Solver = get_solver()
         self.operators: Operators = get_operators(self.grid)
         self.fields: Fields = get_fields(self.grid)
-        self.solver: Solver = get_solver()
-        self.statistics: Statistics = Statistics(self.grid, self.settings)
+        self.statistics: Statistics = Statistics(self.grid)
 
-        s, a, b, c = butcher_tableau(self.settings["tim"])
+        s, a, b, c = butcher_tableau(config.tim)
         self.s: int = s
         self.a: np.ndarray = a
         self.b: np.ndarray = b
