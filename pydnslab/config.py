@@ -12,5 +12,5 @@ fixed_dt: bool = False
 dt: float = 4.501e-3
 co_target: float = 0.5
 interval: int = 100
-statint: bool = 1
+stat_interval: bool = 100
 backend: str = "cupy"
