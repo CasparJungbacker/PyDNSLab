@@ -59,8 +59,9 @@ class ScipySolver(Solver):
         b: np.ndarray,
         c: np.ndarray,
         dt: float,
-        nu: float,
     ) -> tuple[np.ndarray, ...]:
+
+        nu = config.nu
 
         uold = np.copy(fields.u)
         vold = np.copy(fields.v)
@@ -135,7 +136,7 @@ class ScipySolver(Solver):
                 + operators.Dzz.dot(fields.w)
             )
 
-            gx = 2 * (2 * config.re_tau * config.nu) ** 2 / (config.heigth**3)
+            gx = 2 * (2 * config.re_tau * nu) ** 2 / (config.heigth**3)
 
             uk[:, i] = -conv_x + diff_x + gx
             vk[:, i] = -conv_y + diff_y + config.gy
