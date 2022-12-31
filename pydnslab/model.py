@@ -5,6 +5,8 @@ generate differential operators,
 import numpy as np
 import matplotlib.pyplot as plt
 
+import pydnslab.config as config
+
 from pydnslab import butcher_tableau
 from pydnslab.grid import Grid
 from pydnslab.fields.get_fields import get_fields
@@ -17,28 +19,15 @@ from pydnslab.statistics import Statistics
 
 
 class Model:
-    def __init__(self, case: dict):
-        self.settings: dict = case
+    def __init__(self):
 
-        self.grid: Grid = Grid(
-            self.settings["res"], self.settings["l_scale"], self.settings["w_scale"]
-        )
+        self.grid: Grid = Grid()
+        self.solver: Solver = get_solver()
+        self.operators: Operators = get_operators(self.grid)
+        self.fields: Fields = get_fields(self.grid)
+        self.statistics: Statistics = Statistics(self.grid)
 
-        self.operators: Operators = get_operators(self.grid, self.settings["engine"])
-
-        self.fields: Fields = get_fields(
-            self.grid.griddim,
-            self.settings["runmode"],
-            self.settings["u_nom"],
-            self.settings["u_f"],
-            self.settings["engine"],
-        )
-
-        self.solver: Solver = get_solver(self.settings["engine"])
-
-        self.statistics: Statistics = Statistics(self.grid, self.settings)
-
-        s, a, b, c = butcher_tableau(self.settings["tim"])
+        s, a, b, c = butcher_tableau(config.tim)
         self.s: int = s
         self.a: np.ndarray = a
         self.b: np.ndarray = b
@@ -51,16 +40,12 @@ class Model:
         self.fields.update(du, dv, dw, pnew)
 
         # Main time loop
-        for i in range(self.settings["nsteps"]):
-            if self.settings["fixed_dt"]:
-                dt = self.settings["dt"]
+        for i in range(config.nsteps):
+            print(f"step: {i}")
+            if config.fixed_dt or i == 0:
+                dt = config.dt
             else:
-                dt = self.solver.adjust_timestep(
-                    self.fields,
-                    self.grid,
-                    self.settings["dt"],
-                    self.settings["co_target"],
-                )
+                dt = self.solver.adjust_timestep(self.fields, self.grid, dt)
 
             du, dv, dw = self.solver.timestep(
                 self.fields,
@@ -71,10 +56,6 @@ class Model:
                 self.b,
                 self.c,
                 dt,
-                self.settings["nu"],
-                self.settings["gx"],
-                self.settings["gy"],
-                self.settings["gz"],
             )
 
             self.fields.update(du, dv, dw)
@@ -89,8 +70,5 @@ class Model:
 
 
 if __name__ == "__main__":
-    from pydnslab.case_setup import case_setup
-
-    case = case_setup()
-    model = Model(case)
+    model = Model()
     model.run()

@@ -1,14 +1,22 @@
-import numpy as np
 import matplotlib.pyplot as plt
+
+import pydnslab.config as config
 
 from pydnslab.grid import Grid
 from pydnslab.fields.basefields import Fields
+
+if config.backend == "scipy":
+    import numpy as np
+elif config.backend == "cupy":
+    import cupy as np
 
 __all__ = ["Statistics"]
 
 
 class Statistics:
-    def __init__(self, grid: Grid, case: dict) -> None:
+    import numpy as np
+
+    def __init__(self, grid: Grid) -> None:
         self._z1 = np.arange(grid.N3 / 2 - 1, dtype=np.int32)
         self._z2 = np.arange(grid.N3 / 2 - 1, grid.N3 - 2, dtype=np.int32)
         self._y1 = np.arange(grid.N1)
@@ -17,12 +25,12 @@ class Statistics:
         self._x2 = np.arange(grid.N2)
 
         # From settings
-        self.nu = case["nu"]
-        self.interval = case["interval"]
+        self.nu = config.nu
+        self.interval = config.stat_interval
 
         # List of steps at which statistics are calculated
         samples = np.arange(
-            self.interval, case["nsteps"] + self.interval, self.interval, dtype=int
+            self.interval, config.nsteps + self.interval, self.interval, dtype=int
         )
 
         stat_dim = (len(samples), len(self._z1))
@@ -59,7 +67,7 @@ class Statistics:
 
     def update(self, grid: Grid, fields: Fields, i: int) -> None:
 
-        if i % self.interval == 0 and i > 0:
+        if (i + 1) % self.interval == 0 and i > 0:
             self.update_fluctuations(grid, fields)
             self.row += 1
 
@@ -106,9 +114,11 @@ class Statistics:
         wplu2 = np.flip(wplu2, axis=0)
         wplu2_mean = wplu2.mean(axis=(1, 2))
 
-        yplu1_mean = grid.z[1 : int(grid.N3 / 2)] / self.nu * ut_mean
+        yplu1_mean = np.array(grid.z[1 : int(grid.N3 / 2)]) / self.nu * ut_mean
 
-        yplu2 = (grid.height - grid.z[int(grid.N3 / 2) : -1]) / self.nu * ut_mean
+        yplu2 = (
+            (grid.height - np.array(grid.z[int(grid.N3 / 2) : -1])) / self.nu * ut_mean
+        )
         yplu2_mean = np.flip(yplu2, axis=0)
 
         uplumean = 0.5 * (uplu1_mean + uplu2_mean)
@@ -228,26 +238,51 @@ class Statistics:
         return fluc
 
     def _plot_fluctiations(self) -> None:
+
+        # In case we use the gpu, copy back arrays to host and select last time step
+        if config.backend == "cupy":
+            yyplumean = np.asnumpy(self.yyplumean)[-1]
+            uuplumean = np.asnumpy(self.uuplumean)[-1]
+            uplurms = np.asnumpy(self.uplurms)[-1]
+            vplurms = np.asnumpy(self.vplurms)[-1]
+            wplurms = np.asnumpy(self.wplurms)[-1]
+            uupluvvplumean = np.asnumpy(self.uupluvvplumean)[-1]
+        else:
+            yyplumean = self.yyplumean[-1]
+            uuplumean = self.uuplumean[-1]
+            uplurms = self.uplurms[-1]
+            vplurms = self.vplurms[-1]
+            wplurms = self.wplurms[-1]
+            uupluvvplumean = self.uupluvvplumean[-1]
+
         fig, ax = plt.subplots(2, 2)
         ax = ax.flatten()
 
-        ax[0].semilogx(self.yyplumean[-2], self.uuplumean[-2], label="Present")
+        ax[0].semilogx(
+            yyplumean,
+            uuplumean,
+            label="Present",
+        )
         ax[0].set_xlabel("$y^+$")
         ax[0].set_ylabel("$U^+$")
         ax[0].grid()
         ax[0].legend()
         ax[0].set_aspect("auto")
 
-        ax[1].plot(self.yyplumean[-2], self.uplurms[-2], label="$u^+$")
-        ax[1].plot(self.yyplumean[-2], self.vplurms[-2], label="$v^+$")
-        ax[1].plot(self.yyplumean[-2], self.wplurms[-2], label="$w^+$")
+        ax[1].plot(yyplumean, uplurms, label="$u^+$")
+        ax[1].plot(yyplumean, vplurms, label="$v^+$")
+        ax[1].plot(yyplumean, wplurms, label="$w^+$")
         ax[1].set_xlabel("$y^+$")
         ax[1].set_ylabel("RMS")
         ax[1].grid()
         ax[1].legend()
         ax[1].set_aspect("auto")
 
-        ax[2].plot(self.yyplumean[-2], self.uupluvvplumean[-2], label="$u^+v^+$")
+        ax[2].plot(
+            yyplumean,
+            uupluvvplumean,
+            label="$u^+v^+$",
+        )
         ax[2].set_xlabel("$y^+$")
         ax[2].set_ylabel("Mean")
         ax[2].grid()
