@@ -19,8 +19,7 @@ from pydnslab.statistics import Statistics
 
 
 class Model:
-    def __init__(self, case: dict):
-        self.settings: dict = case
+    def __init__(self):
 
         self.grid: Grid = Grid()
         self.solver: Solver = get_solver()
@@ -41,17 +40,12 @@ class Model:
         self.fields.update(du, dv, dw, pnew)
 
         # Main time loop
-        for i in range(self.settings["nsteps"]):
+        for i in range(config.nsteps):
             print(f"step: {i}")
-            if self.settings["fixed_dt"]:
-                dt = self.settings["dt"]
+            if config.fixed_dt or i == 1:
+                dt = config.dt
             else:
-                dt = self.solver.adjust_timestep(
-                    self.fields,
-                    self.grid,
-                    self.settings["dt"],
-                    self.settings["co_target"],
-                )
+                dt = self.solver.adjust_timestep(self.fields, self.grid, dt)
 
             du, dv, dw = self.solver.timestep(
                 self.fields,
@@ -62,10 +56,6 @@ class Model:
                 self.b,
                 self.c,
                 dt,
-                self.settings["nu"],
-                self.settings["gx"],
-                self.settings["gy"],
-                self.settings["gz"],
             )
 
             self.fields.update(du, dv, dw)
@@ -80,10 +70,5 @@ class Model:
 
 
 if __name__ == "__main__":
-    from pydnslab.case_setup import case_setup
-
-    case = case_setup(
-        l_scale=0.5, w_scale=0.5, engine="cupy", fixed_dt=True, nsteps=1000
-    )
-    model = Model(case)
+    model = Model()
     model.run()
