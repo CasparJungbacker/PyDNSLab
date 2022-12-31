@@ -66,7 +66,7 @@ class Model:
 
             self.statistics.update(self.grid, self.fields, i)
 
-        # self.statistics.plot()
+        self.statistics.plot()
 
 
 if __name__ == "__main__":

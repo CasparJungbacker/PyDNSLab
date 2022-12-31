@@ -239,26 +239,50 @@ class Statistics:
 
     def _plot_fluctiations(self) -> None:
 
+        # In case we use the gpu, copy back arrays to host and select last time step
+        if config.backend == "cupy":
+            yyplumean = np.asnumpy(self.yyplumean)[-1]
+            uuplumean = np.asnumpy(self.uuplumean)[-1]
+            uplurms = np.asnumpy(self.uplurms)[-1]
+            vplurms = np.asnumpy(self.vplurms)[-1]
+            wplurms = np.asnumpy(self.wplurms)[-1]
+            uupluvvplumean = np.asnumpy(self.uupluvvplumean)[-1]
+        else:
+            yyplumean = self.yyplumean[-1]
+            uuplumean = self.uuplumean[-1]
+            uplurms = self.uplurms[-1]
+            vplurms = self.vplurms[-1]
+            wplurms = self.wplurms[-1]
+            uupluvvplumean = self.uupluvvplumean[-1]
+
         fig, ax = plt.subplots(2, 2)
         ax = ax.flatten()
 
-        ax[0].semilogx(self.yyplumean[-1], self.uuplumean[-1], label="Present")
+        ax[0].semilogx(
+            yyplumean,
+            uuplumean,
+            label="Present",
+        )
         ax[0].set_xlabel("$y^+$")
         ax[0].set_ylabel("$U^+$")
         ax[0].grid()
         ax[0].legend()
         ax[0].set_aspect("auto")
 
-        ax[1].plot(self.yyplumean[-1], self.uplurms[-1], label="$u^+$")
-        ax[1].plot(self.yyplumean[-1], self.vplurms[-1], label="$v^+$")
-        ax[1].plot(self.yyplumean[-1], self.wplurms[-1], label="$w^+$")
+        ax[1].plot(yyplumean, uplurms, label="$u^+$")
+        ax[1].plot(yyplumean, vplurms, label="$v^+$")
+        ax[1].plot(yyplumean, wplurms, label="$w^+$")
         ax[1].set_xlabel("$y^+$")
         ax[1].set_ylabel("RMS")
         ax[1].grid()
         ax[1].legend()
         ax[1].set_aspect("auto")
 
-        ax[2].plot(self.yyplumean[-1], self.uupluvvplumean[-1], label="$u^+v^+$")
+        ax[2].plot(
+            yyplumean,
+            uupluvvplumean,
+            label="$u^+v^+$",
+        )
         ax[2].set_xlabel("$y^+$")
         ax[2].set_ylabel("Mean")
         ax[2].grid()
