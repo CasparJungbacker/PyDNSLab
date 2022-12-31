@@ -131,7 +131,7 @@ class CupyOperators(Operators):
         rows = cp.array(rows)
         cols = cp.array(cols)
 
-        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N))
+        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N), copy=True)
 
         return M
 
@@ -222,8 +222,7 @@ class CupyOperators(Operators):
         rows = cp.array(rows)
         cols = cp.array(cols)
 
-        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N))
-        M.eliminate_zeros()
+        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N), copy=True)
 
         return M
 
@@ -311,8 +310,7 @@ class CupyOperators(Operators):
         rows = cp.array(rows)
         cols = cp.array(cols)
 
-        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N))
-        M.eliminate_zeros()
+        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N), copy=True)
 
         return M
 
@@ -431,9 +429,7 @@ class CupyOperators(Operators):
         rows = cp.array(rows)
         cols = cp.array(cols)
 
-        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N))
-
-        M.eliminate_zeros()
+        M = sps.csr_matrix((data, (rows, cols)), shape=(N, N), copy=True)
 
         return M
 
