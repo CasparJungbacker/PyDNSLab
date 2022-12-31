@@ -42,7 +42,7 @@ class Model:
         # Main time loop
         for i in range(config.nsteps):
             print(f"step: {i}")
-            if config.fixed_dt or i == 1:
+            if config.fixed_dt or i == 0:
                 dt = config.dt
             else:
                 dt = self.solver.adjust_timestep(self.fields, self.grid, dt)
