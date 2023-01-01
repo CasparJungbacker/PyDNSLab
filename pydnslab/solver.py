@@ -13,18 +13,14 @@ else:
     import numpy as xp
     import scipy.sparse.linalg as spsl
 
-from pydnslab.fields.cupy_fields import CupyFields
+from pydnslab.fields import Fields
 from pydnslab.grid import Grid
-from pydnslab.operators.cupy_operators import CupyOperators
-
-__all__ = ["Solver"]
+from pydnslab.operators import Operators
 
 
 class Solver:
     @staticmethod
-    def projection(
-        fields: CupyFields, operators: CupyOperators
-    ) -> tuple[xp.ndarray, ...]:
+    def projection(fields: Fields, operators: Operators) -> tuple[xp.ndarray, ...]:
         div = (
             operators.Dx.dot(fields.u)
             + operators.Dy.dot(fields.v)
@@ -44,7 +40,7 @@ class Solver:
         return pnew, du, dv, dw
 
     @staticmethod
-    def adjust_timestep(fields: CupyFields, grid: Grid, dt: float) -> float:
+    def adjust_timestep(fields: Fields, grid: Grid, dt: float) -> float:
         # TODO: Maybe better to prevent transfer from device to host
         cox = fields.U.get() * dt / grid.FX[1 : grid.N3 - 1]
         coy = fields.V.get() * dt / grid.FY[1 : grid.N3 - 1]
@@ -59,8 +55,8 @@ class Solver:
 
     @staticmethod
     def timestep(
-        fields: CupyFields,
-        operators: CupyOperators,
+        fields: Fields,
+        operators: Operators,
         grid: Grid,
         s: int,
         a: np.ndarray,
