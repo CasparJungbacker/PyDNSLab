@@ -10,8 +10,6 @@ if config.backend == "scipy":
 elif config.backend == "cupy":
     import cupy as np
 
-__all__ = ["Statistics"]
-
 
 class Statistics:
     import numpy as np
