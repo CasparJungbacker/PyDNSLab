@@ -10,11 +10,10 @@ import pydnslab.config as config
 from pydnslab import butcher_tableau
 from pydnslab.grid import Grid
 from pydnslab.fields.get_fields import get_fields
-from pydnslab.solver.get_solver import get_solver
+from pydnslab.solver import Solver
 from pydnslab.operators.get_operators import get_operators
 from pydnslab.fields.basefields import Fields
 from pydnslab.operators.base_operators import Operators
-from pydnslab.solver.basesolver import Solver
 from pydnslab.statistics import Statistics
 
 
@@ -22,7 +21,7 @@ class Model:
     def __init__(self):
 
         self.grid: Grid = Grid()
-        self.solver: Solver = get_solver()
+        self.solver = Solver()
         self.operators: Operators = get_operators(self.grid)
         self.fields: Fields = get_fields(self.grid)
         self.statistics: Statistics = Statistics(self.grid)
