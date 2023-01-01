@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pydnslab.config as config
 
 from pydnslab.grid import Grid
-from pydnslab.fields.basefields import Fields
+from pydnslab.fields import Fields
 
 if config.backend == "scipy":
     import numpy as np
