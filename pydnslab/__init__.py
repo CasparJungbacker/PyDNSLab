@@ -1,4 +1,3 @@
-from .butcher_tableau import *
 from .fields import *
 from .grid import *
 from .model import *
