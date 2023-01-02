@@ -1,8 +1,12 @@
-import numpy as np
-
 import pydnslab.config as config
 
-__all__ = ["Grid"]
+if config.backend == "cupy":
+    try:
+        import cupy as np
+    except ImportError:
+        import numpy as np
+else:
+    import numpy as np
 
 
 class Grid:
