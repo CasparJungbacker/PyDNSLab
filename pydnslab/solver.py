@@ -19,6 +19,14 @@ from pydnslab.operators import Operators
 
 
 class Solver:
+    def __init__(self):
+        self.s = None
+        self.a = None
+        self.b = None
+        self.c = None
+
+        self._butcher_tableau()
+
     @staticmethod
     def projection(fields: Fields, operators: Operators) -> tuple[xp.ndarray, ...]:
         div = (
@@ -53,15 +61,11 @@ class Solver:
 
         return dt
 
-    @staticmethod
     def timestep(
+        self,
         fields: Fields,
         operators: Operators,
         grid: Grid,
-        s: int,
-        a: np.ndarray,
-        b: np.ndarray,
-        c: np.ndarray,
         dt: float,
     ) -> tuple[xp.ndarray, ...]:
 
@@ -75,21 +79,23 @@ class Solver:
         vc = xp.copy(fields.v)
         wc = xp.copy(fields.w)
 
-        uk = xp.zeros((grid.N1 * grid.N2 * (grid.N3 - 2), s))
+        uk = xp.zeros((grid.N1 * grid.N2 * (grid.N3 - 2), self.s))
         vk = xp.zeros_like(uk)
         wk = xp.zeros_like(uk)
 
-        for i in range(s):
+        for i in range(self.s):
             du = xp.zeros(grid.N1 * grid.N2 * (grid.N3 - 2))
             dv = xp.zeros_like(du)
             dw = xp.zeros_like(du)
 
             if i > 0:
-                for j in range(s):
-                    du += a[i, j] * uk[:, j]
-                    dv += a[i, j] * vk[:, j]
-                    dw += a[i, j] * wk[:, j]
+                for j in range(self.s):
+                    du += self.a[i][j] * uk[:, j]
+                    dv += self.a[i][j] * vk[:, j]
 
+                    dw += self.a[i][j] * wk[:, j]
+
+                +operators.Dzz.dot(fields.w)
                 fields.update(du * dt, dv * dt, dw * dt)
 
                 pnew, du, dv, dw = Solver.projection(fields, operators)
@@ -146,12 +152,40 @@ class Solver:
             vk[:, i] = -conv_y + diff_y + config.gy
             wk[:, i] = -conv_z + diff_z + config.gz
 
-            uc += dt * b[i] * uk[:, i]
-            vc += dt * b[i] * vk[:, i]
-            wc += dt * b[i] * wk[:, i]
+            uc += dt * self.b[i] * uk[:, i]
+            vc += dt * self.b[i] * vk[:, i]
+            wc += dt * self.b[i] * wk[:, i]
 
         du = uc - uold
         dv = vc - vold
         dw = wc - wold
 
         return du, dv, dw
+
+    def _butcher_tableau(self) -> None:
+        if config.tim == 1:
+            self.s = 1
+            self.a = [[0]]
+            self.b = [1]
+            self.c = 0
+
+        elif config.tim == 2:
+            self.s = 2
+            self.a = [[0, 0], [1, 0]]
+            self.b = [0.5, 0.5]
+            self.c = [0, 1]
+
+        elif config.tim == 3:
+            self.s = 3
+            self.a = [[0, 0, 0], [0.5, 0, 0], [-1, 2, 0]]
+            self.b = [1 / 6, 2 / 3, 1 / 6]
+            self.c = [0, 0.5, 1]
+
+        elif config.tim == 4:
+            self.s = 4
+            self.a = [[0, 0, 0, 0], [0.5, 0, 0, 0], [0, 0.5, 0, 0], [0, 0, 1, 0]]
+            self.b = [1 / 6, 1 / 3, 1 / 3, 1 / 6]
+            self.c = [0, 0.5, 0.5, 1]
+
+        else:
+            raise ValueError(f"Invalid time integration order: {config.tim}")
