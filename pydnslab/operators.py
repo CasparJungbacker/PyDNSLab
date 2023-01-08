@@ -75,30 +75,30 @@ class Operators:
             data_2 = 1 / FY0 * FY0 / (FY0 + FYN)
             data_3 = -1 / FY0 * FY0 / (FY0 + FYS)
 
-            rows = np.tile(grid.A0.flatten(), 3)
-            cols = np.concatenate(
+            rows = xp.tile(grid.A0.flatten(), 3)
+            cols = xp.concatenate(
                 (
                     grid.A0.flatten(),
                     grid.AN[grid.A0.flatten()],
                     grid.AS[grid.A0.flatten()],
                 )
             )
-            data = np.concatenate((data_1, data_2, data_3))
+            data = xp.concatenate((data_1, data_2, data_3))
 
         elif index == 2:
             data_1 = (1 / FX0) * (FXE / (FX0 + FXE) - FXW / (FXW + FX0))
             data_2 = 1 / FX0 * FX0 / (FX0 + FXE)
             data_3 = -1 / FX0 * FX0 / (FX0 + FXW)
 
-            rows = np.tile(grid.A0.flatten(), 3)
-            cols = np.concatenate(
+            rows = xp.tile(grid.A0.flatten(), 3)
+            cols = xp.concatenate(
                 (
                     grid.A0.flatten(),
                     grid.AE[grid.A0.flatten()],
                     grid.AW[grid.A0.flatten()],
                 )
             )
-            data = np.concatenate((data_1, data_2, data_3))
+            data = xp.concatenate((data_1, data_2, data_3))
 
         elif index == 3:
             data_1 = (1 / FZ0) * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0))
@@ -127,19 +127,14 @@ class Operators:
 
             rows_3 = grid.A0.flatten()[mask]
 
-            data = np.concatenate((data_1, data_2, data_3))
-            rows = np.concatenate((grid.A0.flatten(), rows_2, rows_3))
-            cols = np.concatenate((grid.A0.flatten(), cols_2, cols_3))
+            data = xp.concatenate((data_1, data_2, data_3))
+            rows = xp.concatenate((grid.A0.flatten(), rows_2, rows_3))
+            cols = xp.concatenate((grid.A0.flatten(), cols_2, cols_3))
 
         else:
             raise ValueError(f"Invalid index: {index}")
 
         N = len(grid.A0.flatten())
-
-        # Transfer arrays to device
-        data = xp.asarray(data)
-        rows = xp.array(rows)
-        cols = xp.array(cols)
 
         M = xs.csr_matrix((data, (rows, cols)), shape=(N, N), copy=True)
 
@@ -168,30 +163,30 @@ class Operators:
             data_2 = 1 / FY0 * FY0 / (FY0 + FYN)
             data_3 = -1 / FY0 * FY0 / (FY0 + FYS)
 
-            rows = np.tile(grid.A0.flatten(), 3)
-            cols = np.concatenate(
+            rows = xp.tile(grid.A0.flatten(), 3)
+            cols = xp.concatenate(
                 (
                     grid.A0.flatten(),
                     grid.AN[grid.A0.flatten()],
                     grid.AS[grid.A0.flatten()],
                 )
             )
-            data = np.concatenate((data_1, data_2, data_3))
+            data = xp.concatenate((data_1, data_2, data_3))
 
         elif index == 2:
             data_1 = (1 / FX0) * (FXE / (FX0 + FXE) - FXW / (FXW + FX0))
             data_2 = 1 / FX0 * FX0 / (FX0 + FXE)
             data_3 = -1 / FX0 * FX0 / (FX0 + FXW)
 
-            rows = np.tile(grid.A0.flatten(), 3)
-            cols = np.concatenate(
+            rows = xp.tile(grid.A0.flatten(), 3)
+            cols = xp.concatenate(
                 (
                     grid.A0.flatten(),
                     grid.AE[grid.A0.flatten()],
                     grid.AW[grid.A0.flatten()],
                 )
             )
-            data = np.concatenate((data_1, data_2, data_3))
+            data = xp.concatenate((data_1, data_2, data_3))
 
         elif index == 3:
             data_1 = (1 / FZ0) * (FZA / (FZ0 + FZA) - FZG / (FZG + FZ0))
@@ -218,9 +213,9 @@ class Operators:
             cols_3 = grid.AA[mask]
             rows_3 = grid.A0.flatten()[mask]
 
-            data = np.concatenate((data_1, data_2, data_3))
-            rows = np.concatenate((grid.A0.flatten(), rows_2, rows_3))
-            cols = np.concatenate((grid.A0.flatten(), cols_2, cols_3))
+            data = xp.concatenate((data_1, data_2, data_3))
+            rows = xp.concatenate((grid.A0.flatten(), rows_2, rows_3))
+            cols = xp.concatenate((grid.A0.flatten(), cols_2, cols_3))
 
         else:
             raise ValueError(f"Invalid index: {index}")
@@ -260,30 +255,30 @@ class Operators:
             data_2 = 2 / (FY0 * (FY0 + FYN))
             data_3 = 2 / (FY0 * (FY0 + FYS))
 
-            rows = np.tile(grid.A0.flatten(), 3)
-            cols = np.concatenate(
+            rows = xp.tile(grid.A0.flatten(), 3)
+            cols = xp.concatenate(
                 (
                     grid.A0.flatten(),
                     grid.AN[grid.A0.flatten()],
                     grid.AS[grid.A0.flatten()],
                 )
             )
-            data = np.concatenate((data_1, data_2, data_3))
+            data = xp.concatenate((data_1, data_2, data_3))
 
         elif index == 2:
             data_1 = -2 / (FX0 * (FX0 + FXE)) - 2 / (FX0 * (FX0 + FXW))
             data_2 = 2 / (FX0 * (FX0 + FXE))
             data_3 = 2 / (FX0 * (FX0 + FXW))
 
-            rows = np.tile(grid.A0.flatten(), 3)
-            cols = np.concatenate(
+            rows = xp.tile(grid.A0.flatten(), 3)
+            cols = xp.concatenate(
                 (
                     grid.A0.flatten(),
                     grid.AE[grid.A0.flatten()],
                     grid.AW[grid.A0.flatten()],
                 )
             )
-            data = np.concatenate((data_1, data_2, data_3))
+            data = xp.concatenate((data_1, data_2, data_3))
 
         elif index == 3:
             data_1 = -2 / (FZ0 * (FZ0 + FZA)) - 2 / (FZ0 * (FZ0 + FZG))
@@ -306,19 +301,14 @@ class Operators:
             cols_3 = grid.AA[mask]
             rows_3 = grid.A0.flatten()[mask]
 
-            data = np.concatenate((data_1, data_2, data_3))
-            rows = np.concatenate((grid.A0.flatten(), rows_2, rows_3))
-            cols = np.concatenate((grid.A0.flatten(), cols_2, cols_3))
+            data = xp.concatenate((data_1, data_2, data_3))
+            rows = xp.concatenate((grid.A0.flatten(), rows_2, rows_3))
+            cols = xp.concatenate((grid.A0.flatten(), cols_2, cols_3))
 
         else:
             raise ValueError(f"Invalid index: {index}")
 
         N = len(grid.A0.flatten())
-
-        # Transfer arrays to device
-        data = xp.array(data)
-        rows = xp.array(rows)
-        cols = xp.array(cols)
 
         M = xs.csr_matrix((data, (rows, cols)), shape=(N, N), copy=True)
 
@@ -430,14 +420,9 @@ class Operators:
             )
         )
 
-        data = np.concatenate((data_1, data_2, data_3, data_4, data_5, data_6, data_7))
-        rows = np.concatenate((np.tile(grid.A0.flatten(), 5), rows_6, rows_7))
-        cols = np.concatenate((cols_1, cols_2, cols_3, cols_4, cols_5, cols_6, cols_7))
-
-        # Transfer arrays to device
-        data = xp.array(data)
-        rows = xp.array(rows)
-        cols = xp.array(cols)
+        data = xp.concatenate((data_1, data_2, data_3, data_4, data_5, data_6, data_7))
+        rows = xp.concatenate((xp.tile(grid.A0.flatten(), 5), rows_6, rows_7))
+        cols = xp.concatenate((cols_1, cols_2, cols_3, cols_4, cols_5, cols_6, cols_7))
 
         M = xs.csr_matrix((data, (rows, cols)), shape=(N, N), copy=True)
 

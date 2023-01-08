@@ -49,10 +49,9 @@ class Solver:
 
     @staticmethod
     def adjust_timestep(fields: Fields, grid: Grid, dt: float) -> float:
-        # TODO: Maybe better to prevent transfer from device to host
-        cox = fields.U.get() * dt / grid.FX[1 : grid.N3 - 1]
-        coy = fields.V.get() * dt / grid.FY[1 : grid.N3 - 1]
-        coz = fields.W.get() * dt / grid.FZ[1 : grid.N3 - 1]
+        cox = fields.U * dt / grid.FX[1 : grid.N3 - 1]
+        coy = fields.V * dt / grid.FY[1 : grid.N3 - 1]
+        coz = fields.W * dt / grid.FZ[1 : grid.N3 - 1]
 
         co = cox + coy + coz
         comax = xp.amax(co)

@@ -12,8 +12,6 @@ elif config.backend == "cupy":
 
 
 class Statistics:
-    import numpy as np
-
     def __init__(self, grid: Grid) -> None:
         self._z1 = np.arange(grid.N3 / 2 - 1, dtype=np.int32)
         self._z2 = np.arange(grid.N3 / 2 - 1, grid.N3 - 2, dtype=np.int32)
